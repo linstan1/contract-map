@@ -223,7 +223,7 @@ confuse the two at a glance.
 ## 🚀 Quick start
 
 ```bash
-git clone https://github.com/<you>/contract-map.git
+git clone https://github.com/linstan1/contract-map.git
 cd contract-map
 bun install                       # only @types/bun and typescript
 cp .env.example .env.local        # then paste your RPC key
