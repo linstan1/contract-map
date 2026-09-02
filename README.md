@@ -164,57 +164,126 @@ Unobserved paths are never counted as executed.
 
 ## Quick start
 
+Requirements: [Bun](https://bun.sh) 1.2 or later, git, and an RPC key of your own. No Node.js, no database and no wallet are needed. The tool only reads chain data, so it never asks for a private key or a signature.
+
+### 1. Get the code
+
 ```bash
 git clone https://github.com/linstan1/contract-map.git
 cd contract-map
 bun install
+```
+
+`bun install` fetches two development packages only: `@types/bun` and `typescript`. The application itself has no runtime dependency.
+
+### 2. Configure your own key
+
+The repository ships no key and contains no default, so this step is required. Create a free key at [alchemy.com](https://alchemy.com), then:
+
+```bash
 cp .env.example .env.local
+# open .env.local and set ALCHEMY_API_KEY=<your key>
+```
+
+On Linux or macOS, restrict the file to your user:
+
+```bash
+chmod 600 .env.local
+```
+
+An environment variable works instead of the file, and takes precedence:
+
+```bash
+export ALCHEMY_API_KEY=<your key>
+```
+
+A non-interactive setup, for a script or an agent:
+
+```bash
+git clone https://github.com/linstan1/contract-map.git && cd contract-map
+bun install
+printf 'ALCHEMY_API_KEY=%s\n' "$ALCHEMY_API_KEY" > .env.local && chmod 600 .env.local
+bun run check-secrets && bunx tsc --noEmit && bun test
 bun run server.ts
 ```
 
-### Bring your own key
-
-This repository ships no RPC key and contains no default. Each user supplies their own, and it never leaves their machine.
-
-Create a free key at [alchemy.com](https://alchemy.com), then set it in `.env.local`:
-
-```text
-ALCHEMY_API_KEY=your_key_here
-```
-
-An environment variable works instead, and takes precedence:
+### 3. Check the setup before you use it
 
 ```bash
-export ALCHEMY_API_KEY=your_key_here
+bun run check-secrets   # No credential found in 85 tracked files.
+bunx tsc --noEmit       # no output
+bun test                # 62 pass, 0 fail
 ```
 
-`.env.local` and every other `.env.*` file are excluded from version control, so a clone or a fork inherits no credential. The server, the smoke script and the chain probe refuse to start without a key and print how to configure one. Placeholder values such as `your_key_here` are rejected rather than sent to the provider.
+These three commands need no key and no network. They confirm the checkout is intact and carries no credential.
 
-Verify that no credential is tracked, at any time:
-
-```bash
-bun run check-secrets
-```
-
-The same check runs in CI on every push and pull request, including in forks.
-
-Run an analysis from the terminal:
+### 4. Run one analysis in the terminal
 
 ```bash
 bun run scripts/smoke.ts 0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB ethereum quick
 ```
 
-Run the interface against bundled fixtures:
+This is the fastest way to confirm the key works. Expect progress lines on stderr, then a report on stdout that starts with the contract label, the likely type and the proxy state. A missing or rejected key stops the run immediately with instructions.
+
+### 5. Start the interface
+
+```bash
+bun run server.ts
+```
+
+```text
+Contract execution explorer on http://127.0.0.1:8787
+Authentication is off. The socket is on the loopback address only.
+```
+
+Open <http://localhost:8787>, paste an address, choose a chain and a depth, then run the analysis.
+
+To inspect the interface without a key and without network access:
 
 ```text
 http://localhost:8787/?fixture=1
 ```
 
-Re-test trace support across configured chains:
+Re-test trace support across the configured chains, which spends your own quota:
 
 ```bash
 bun run scripts/probe-chains.ts
 ```
+
+### Secure by default, and how to keep it that way
+
+| Property | Default | What to do |
+| --- | --- | --- |
+| Network exposure | binds `127.0.0.1` only | leave `HOST` unset for local use |
+| Remote access | refused | set `HOST` **and** `AUTH_TOKEN` together; the server exits if `HOST` is public without a token |
+| API authentication | off on loopback | `AUTH_TOKEN=$(openssl rand -hex 32)`, then send `X-Auth-Token` |
+| Key exposure to the browser | none | nothing to do; the page calls only `/api/*` on your own host |
+| Key in error output | scrubbed | nothing to do; `src/rpc.ts` replaces it with `***` |
+| Key in version control | ignored | run `bun run check-secrets` before you push a fork |
+| Third-party assets | none | nothing to do; no CDN, no font and no analytics are loaded |
+| Signing keys | never used | the tool reads chain state only, so no wallet is involved |
+
+Two habits worth adopting at the provider: restrict the key to your own machine or domain in the Alchemy dashboard, and set a request cap. This tool spends requests in proportion to the depth you choose.
+
+To expose the interface beyond your machine:
+
+```bash
+AUTH_TOKEN=$(openssl rand -hex 32) HOST=0.0.0.0 bun run server.ts
+```
+
+The page then asks for the token once and keeps it in `localStorage`. Without `AUTH_TOKEN`, the same command refuses to start rather than serve an open endpoint that spends your key.
+
+### If something fails
+
+| Symptom | Cause and fix |
+| --- | --- |
+| `No RPC key is configured, and this project ships none.` | Step 2 is missing or the value is a placeholder. Set a real key. |
+| `holds no code on <chain>` | The address is an account, not a contract, or it is on another chain. |
+| `is not a 20 byte address` | The input is not `0x` plus 40 hex characters. |
+| The explorer refused, source view is thin | Blockscout answered HTTP 429. Wait, then run again. The review panel names the refusal. |
+| A tiny window on a busy chain | Expected. The strip states the span, the coverage and the stop reason. Raise the depth. |
+| `EADDRINUSE` | Another process holds the port. Use `PORT=8788 bun run server.ts`. |
+| Few labels, many short addresses | The label budget or the explorer limited it. The review panel says which. |
 
 ## How it works
 
