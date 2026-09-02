@@ -19,7 +19,13 @@
  * the key is still working.
  */
 
-import { alchemyKey } from "../src/config";
+import { alchemyKey, findAlchemyKey, MISSING_KEY_MESSAGE } from "../src/config";
+
+/* The probe spends real requests, so it needs the operator's own key. */
+if (!findAlchemyKey()) {
+  console.error(MISSING_KEY_MESSAGE);
+  process.exit(1);
+}
 
 interface Candidate {
   key: string;

@@ -172,11 +172,31 @@ cp .env.example .env.local
 bun run server.ts
 ```
 
-Add an Alchemy API key:
+### Bring your own key
+
+This repository ships no RPC key and contains no default. Each user supplies their own, and it never leaves their machine.
+
+Create a free key at [alchemy.com](https://alchemy.com), then set it in `.env.local`:
 
 ```text
 ALCHEMY_API_KEY=your_key_here
 ```
+
+An environment variable works instead, and takes precedence:
+
+```bash
+export ALCHEMY_API_KEY=your_key_here
+```
+
+`.env.local` and every other `.env.*` file are excluded from version control, so a clone or a fork inherits no credential. The server, the smoke script and the chain probe refuse to start without a key and print how to configure one. Placeholder values such as `your_key_here` are rejected rather than sent to the provider.
+
+Verify that no credential is tracked, at any time:
+
+```bash
+bun run check-secrets
+```
+
+The same check runs in CI on every push and pull request, including in forks.
 
 Run an analysis from the terminal:
 
@@ -296,7 +316,9 @@ If `HOST` exposes the service externally, the server requires `AUTH_TOKEN`.
 
 API routes support authentication through `X-Auth-Token` or a token query parameter.
 
-RPC keys remain server-side and are scrubbed from propagated RPC errors. `.env.local` is excluded from version control.
+RPC keys remain server-side and are scrubbed from propagated RPC errors, because a failed request otherwise carries the endpoint URL. The browser never receives a key.
+
+No key is committed and no key is distributed. `.env.local` and every `.env.*` variant are ignored by git, `scripts/check-secrets.ts` fails the build on any credential shape in a tracked file, and CI runs that scan before the type check and the tests. A fork therefore starts with no credential and must configure its own.
 
 ## Verification
 

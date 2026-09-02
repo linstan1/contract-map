@@ -1,0 +1,33 @@
+name: ci
+
+# Three checks run on every push and every pull request, including in a fork.
+# The credential scan runs FIRST, because a leaked key cannot be un-leaked by
+# a later step.
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install development types
+        run: bun install --frozen-lockfile
+
+      - name: No credential in tracked files
+        run: bun run check-secrets
+
+      - name: Types
+        run: bunx tsc --noEmit
+
+      # The suite needs no key and no network. Every test works on fixtures
+      # and on hand-built call trees, so CI proves the analysis logic without
+      # anyone's RPC quota.
+      - name: Tests
+        run: bun test

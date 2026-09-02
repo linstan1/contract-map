@@ -7,12 +7,19 @@
  * functions, one full function map, both runtime directions, and the review.
  */
 
+import { findAlchemyKey, MISSING_KEY_MESSAGE } from "../src/config";
 import { analyzeContract } from "../src/pipeline";
 import type { Depth } from "../src/types";
 
 const [address, chainKey = "ethereum", depth = "quick"] = Bun.argv.slice(2);
 if (!address) {
   console.error("Usage: bun run scripts/smoke.ts <address> [chain] [depth]");
+  process.exit(1);
+}
+/* This project ships no key. Say that plainly instead of failing later
+ * inside a provider call. */
+if (!findAlchemyKey()) {
+  console.error(MISSING_KEY_MESSAGE);
   process.exit(1);
 }
 

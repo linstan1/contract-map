@@ -1,5 +1,10 @@
 node_modules/
 .cache/
+
+# Never commit a key. Every user supplies their own, and it stays on their
+# machine. Only the documented template is tracked.
 .env
-.env.local
+.env.*
+!.env.example
+
 *.log
