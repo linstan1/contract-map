@@ -45,16 +45,22 @@ function buildModel(result, collapsed) {
     nodes.set(id, { id, col, label, sub, addr, calls });
   }
 
-  function addEdge(from, to, calls, possible, observed) {
+  function addEdge(from, to, calls, possible, observed, examples) {
     const id = from + "->" + to;
-    const existing = edgeMap.get(id);
-    if (existing) {
-      existing.calls += calls;
-      existing.possible = existing.possible || possible;
-      existing.observed = existing.observed || observed;
-      return;
+    let existing = edgeMap.get(id);
+    if (!existing) {
+      existing = { from, to, calls: 0, possible: false, observed: false, examples: [] };
+      edgeMap.set(id, existing);
     }
-    edgeMap.set(id, { from, to, calls, possible, observed });
+    existing.calls += calls;
+    existing.possible = existing.possible || possible;
+    existing.observed = existing.observed || observed;
+    // Proofs merge from every underlying edge collapsed into this one node
+    // pair. Keep at most 5 distinct transactions, newest additions first.
+    for (const tx of examples || []) {
+      if (existing.examples.length >= 5) break;
+      if (!existing.examples.some((t) => t.hash === tx.hash)) existing.examples.push(tx);
+    }
   }
 
   // Middle column: every exposed function of the target contract.
@@ -71,7 +77,7 @@ function buildModel(result, collapsed) {
     const sub = collapsed ? undefined : shortLabel(e.callerLabel, e.caller);
     addNode(leftId, 0, label, sub, e.caller, e.calls);
     const midId = "mid:" + (e.targetSelector || "?");
-    addEdge(leftId, midId, e.calls, false, e.calls > 0);
+    addEdge(leftId, midId, e.calls, false, e.calls > 0, e.examples);
   }
 
   // Right column: outbound edges, target function -> destination function.
@@ -82,7 +88,7 @@ function buildModel(result, collapsed) {
     const sub = collapsed ? undefined : shortLabel(e.destinationLabel, e.destination);
     addNode(rightId, 2, label, sub, e.destination, e.calls);
     const midId = "mid:" + (e.targetSelector || "?");
-    addEdge(midId, rightId, e.calls, e.possibleFromCode === true, e.calls > 0);
+    addEdge(midId, rightId, e.calls, e.possibleFromCode === true, e.calls > 0, e.examples);
   }
 
   return { nodes: [...nodes.values()], edges: [...edgeMap.values()] };
@@ -119,18 +125,86 @@ function edgePath(x1, y1, x2, y2) {
   return `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
 }
 
+function shortHash(hash) {
+  return hash && hash.length > 14 ? hash.slice(0, 6) + "\u2026" + hash.slice(-4) : (hash || "?");
+}
+
+/**
+ * Inner content for the edge proof panel: the edge label plus its proof
+ * links. Falls back to a hash and a copy control when no explorer base
+ * URL is known, and to a plain note when the edge carries no proof.
+ */
+function buildEdgePanelContent(fromLabel, toLabel, edge, explorerTx) {
+  const frag = document.createDocumentFragment();
+  const title = document.createElement("div");
+  title.className = "graph-edge-panel-title mono";
+  title.textContent = `${fromLabel} \u2192 ${toLabel}`;
+  frag.appendChild(title);
+
+  if (!edge.examples || !edge.examples.length) {
+    const note = document.createElement("div");
+    note.className = "empty-note";
+    note.textContent = edge.observed
+      ? "This edge was observed, but no proof transaction was recorded."
+      : "Possible from code. No transaction has exercised this edge yet.";
+    frag.appendChild(note);
+    return frag;
+  }
+
+  const list = document.createElement("div");
+  list.className = "graph-edge-panel-proofs";
+  for (const tx of edge.examples) {
+    if (explorerTx) {
+      const a = document.createElement("a");
+      a.className = "proof-link mono";
+      a.href = explorerTx + tx.hash;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.title = `Block ${tx.block}`;
+      a.textContent = shortHash(tx.hash) + " \u2197";
+      list.appendChild(a);
+    } else {
+      const span = document.createElement("span");
+      span.className = "proof-fallback";
+      span.title = `Block ${tx.block}`;
+      const hashSpan = document.createElement("span");
+      hashSpan.className = "proof-hash mono";
+      hashSpan.textContent = shortHash(tx.hash);
+      span.appendChild(hashSpan);
+      const btn = document.createElement("button");
+      btn.className = "copy-btn ghost small";
+      btn.type = "button";
+      btn.textContent = "Copy";
+      btn.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(tx.hash); btn.textContent = "Copied"; setTimeout(() => (btn.textContent = "Copy"), 1200); }
+        catch { btn.textContent = "Failed"; setTimeout(() => (btn.textContent = "Copy"), 1200); }
+      });
+      span.appendChild(btn);
+      list.appendChild(span);
+    }
+  }
+  frag.appendChild(list);
+  return frag;
+}
+
 /**
  * Render the graph into `container`. Returns a controller with
  * `setCollapsed(bool)` and `destroy()`.
  */
 export function renderGraph(container, result, options = {}) {
   const onSelectFunction = options.onSelectFunction || (() => {});
+  const explorerTx = options.explorerTx || null;
   let collapsed = false;
+  let pinnedEdgeKey = null;
   let caps = { 0: DEFAULT_CAP, 1: DEFAULT_CAP, 2: DEFAULT_CAP };
 
   function draw() {
     container.innerHTML = "";
     const model = buildModel(result, collapsed);
+    const nodeLabelById = new Map(model.nodes.map((n) => [n.id, n.label]));
+    const edgePanel = document.createElement("div");
+    edgePanel.className = "graph-edge-panel";
+    edgePanel.hidden = true;
     const byCol = { 0: [], 1: [], 2: [] };
     for (const n of model.nodes) byCol[n.col].push(n);
 
@@ -174,11 +248,19 @@ export function renderGraph(container, result, options = {}) {
       const path = svgEl("path", { d: edgePath(x1, y1, x2, y2), class: cls, "stroke-width": width_ });
       path.dataset.from = e.from;
       path.dataset.to = e.to;
+      path.style.cursor = "pointer";
       const title = svgEl("title", {});
       title.textContent = e.observed
         ? `${e.calls} observed call${e.calls === 1 ? "" : "s"}`
         : "Possible from code, not observed onchain";
       path.appendChild(title);
+      const edgeKey = e.from + "->" + e.to;
+      path.addEventListener("mouseenter", () => { highlightEdge(path); if (!pinnedEdgeKey) showEdgePanel(e); });
+      path.addEventListener("mouseleave", () => { clearEdgeHighlight(path); if (!pinnedEdgeKey) hideEdgePanel(); });
+      path.addEventListener("click", () => {
+        if (pinnedEdgeKey === edgeKey) { pinnedEdgeKey = null; hideEdgePanel(); }
+        else { pinnedEdgeKey = edgeKey; showEdgePanel(e); }
+      });
       edgeGroup.appendChild(path);
       edgeEls.push(path);
     }
@@ -222,16 +304,42 @@ export function renderGraph(container, result, options = {}) {
       for (const path of edgeEls) path.classList.remove("highlight");
       for (const [, g] of nodeEls) g.classList.remove("highlight");
     }
+    function highlightEdge(path) {
+      path.classList.add("highlight");
+      const fromNode = nodeEls.get(path.dataset.from);
+      const toNode = nodeEls.get(path.dataset.to);
+      if (fromNode) fromNode.classList.add("highlight");
+      if (toNode) toNode.classList.add("highlight");
+    }
+    function clearEdgeHighlight(path) {
+      path.classList.remove("highlight");
+      const fromNode = nodeEls.get(path.dataset.from);
+      const toNode = nodeEls.get(path.dataset.to);
+      if (fromNode) fromNode.classList.remove("highlight");
+      if (toNode) toNode.classList.remove("highlight");
+    }
+    function showEdgePanel(e) {
+      edgePanel.innerHTML = "";
+      const fromLabel = nodeLabelById.get(e.from) || e.from;
+      const toLabel = nodeLabelById.get(e.to) || e.to;
+      edgePanel.appendChild(buildEdgePanelContent(fromLabel, toLabel, e, explorerTx));
+      edgePanel.hidden = false;
+    }
+    function hideEdgePanel() {
+      edgePanel.hidden = true;
+    }
 
     svg.appendChild(headerGroup);
     svg.appendChild(edgeGroup);
     svg.appendChild(nodeGroup);
     container.appendChild(svg);
 
-    // "Show more" controls, one per column that is capped.
+    // Footer: capped-column controls, then the edge proof panel.
+    const footer = document.createElement("div");
+    footer.className = "graph-footer";
+
     const controls = document.createElement("div");
     controls.className = "graph-toolbar";
-    controls.style.marginTop = "8px";
     const colNames = ["Callers", "This contract", "Destinations"];
     layouts.forEach((l, i) => {
       if (l.hiddenCount > 0) {
@@ -243,9 +351,12 @@ export function renderGraph(container, result, options = {}) {
         controls.appendChild(btn);
       }
     });
-    container.after(controls);
-    if (container._controls) container._controls.remove();
-    container._controls = controls;
+    footer.appendChild(controls);
+    footer.appendChild(edgePanel);
+
+    container.after(footer);
+    if (container._footer) container._footer.remove();
+    container._footer = footer;
   }
 
   function truncate(s, n) {
@@ -255,7 +366,7 @@ export function renderGraph(container, result, options = {}) {
   draw();
 
   return {
-    setCollapsed(v) { collapsed = v; caps = { 0: DEFAULT_CAP, 1: DEFAULT_CAP, 2: DEFAULT_CAP }; draw(); },
-    destroy() { container.innerHTML = ""; if (container._controls) container._controls.remove(); },
+    setCollapsed(v) { collapsed = v; pinnedEdgeKey = null; caps = { 0: DEFAULT_CAP, 1: DEFAULT_CAP, 2: DEFAULT_CAP }; draw(); },
+    destroy() { container.innerHTML = ""; if (container._footer) container._footer.remove(); },
   };
 }

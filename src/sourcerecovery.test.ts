@@ -2,6 +2,14 @@ import { afterEach, expect, test } from "bun:test";
 import { recoverSources, toChecksumAddress } from "./sourcerecovery";
 import type { ChainConfig } from "./types";
 
+/**
+ * These tests stub `fetch`, so no request leaves the process. A placeholder
+ * key still has to exist, because the RPC endpoint URL is built before any
+ * request is made. Setting it here keeps the suite runnable on a machine and
+ * in CI with no key of its own.
+ */
+process.env.ALCHEMY_API_KEY = "test-key-not-a-real-credential";
+
 const CHAIN: ChainConfig = {
   id: 1,
   key: "ethereum",

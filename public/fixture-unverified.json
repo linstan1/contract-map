@@ -343,7 +343,17 @@
           "calls": 4,
           "txs": 4,
           "functions": [],
-          "targetFunctions": []
+          "targetFunctions": [],
+          "examples": [
+            {
+              "hash": "0x4b0184dced3387ae16238fb4028ac9292c4bb66a7674b96e6f56eb697fc96f42",
+              "block": 20123456
+            },
+            {
+              "hash": "0x0657070fe3e1729d364a56830b58cf9497eb7a0e99cb7bda5988d31936af39c5",
+              "block": 20123359
+            }
+          ]
         }
       ],
       "totalCalls": 0

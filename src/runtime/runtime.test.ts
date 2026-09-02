@@ -130,6 +130,9 @@ test("delegatecall out of the target is kept apart from ordinary outbound edges"
   expect(delegate).toBeDefined();
   expect(delegate?.callType).toBe("delegatecall");
   expect(delegate?.targetSelector).toBe(SIG.deposit);
+  // Requirement 3: delegatecall edges carry proofs too.
+  expect(delegate?.examples).toHaveLength(1);
+  expect(delegate?.examples[0]).toEqual({ hash: "0xtx1", block: 100, path: "2" });
 });
 
 test("an inbound call straight from an EOA has no caller selector and callerIsEoa true", async () => {
@@ -161,6 +164,8 @@ test("calls counts every occurrence, txs counts distinct transactions", async ()
   const contract = result.outbound.contracts.find((c) => c.address === EXT1);
   expect(contract?.calls).toBe(3);
   expect(contract?.txs).toBe(2);
+  // Requirement 3: contract roll-ups carry proofs, one per distinct transaction here.
+  expect(contract?.examples).toHaveLength(2);
 });
 
 test("targetFunctionCalls tallies every observed entry into the target", async () => {
@@ -168,6 +173,11 @@ test("targetFunctionCalls tallies every observed entry into the target", async (
   const deposit = result.targetFunctionCalls.find((f) => f.selector === SIG.deposit);
   // Entered by: tx1 root (EOA), tx2 callerA->proxy. Two observed entries.
   expect(deposit?.calls).toBe(2);
+  // Requirement: targetFunctionCalls carries proofs, newest transaction first.
+  expect(deposit?.examples).toEqual([
+    { hash: "0xtx2", block: 101, path: "0" },
+    { hash: "0xtx1", block: 100, path: "root" },
+  ]);
 });
 
 test("unresolvedSelectors lists selectors no signature source explains", async () => {
@@ -178,6 +188,50 @@ test("unresolvedSelectors lists selectors no signature source explains", async (
   const result = await aggregateTraces([buildTx1()], IDENTITY, registry, fakeLabels(CONTRACTS));
   expect(result.unresolvedSelectors).toContain(SIG.deposit);
   expect(result.unresolvedSelectors).toContain(SIG.extTransfer);
+});
+
+test("the frame path recorded for a nested frame is the exact index chain from the root", async () => {
+  const result = await aggregateTraces([buildTx1()], IDENTITY, fakeRegistry(), fakeLabels(CONTRACTS));
+  const toExt1 = result.outbound.edges.find((e) => e.destination === EXT1);
+  // proxy->ext1 is reached through delegateToImpl (root child 0) then its own
+  // first child (0): the recorded path must be "0,0", not the raw depth.
+  const proof = toExt1?.examples.find((e) => e.hash === "0xtx1");
+  expect(proof).toEqual({ hash: "0xtx1", block: 100, path: "0,0" });
+});
+
+test("three frames of one transaction give one proof, not three", async () => {
+  const threeFrames = frame(EOA1, PROXY, SIG.deposit, "call", [
+    frame(PROXY, EXT1, SIG.extTransfer, "call"),
+    frame(PROXY, EXT1, SIG.extTransfer, "call"),
+    frame(PROXY, EXT1, SIG.extTransfer, "call"),
+  ]);
+  const tx: TraceTx = { hash: "0xtx-three", blockNumber: 200, root: threeFrames };
+  const result = await aggregateTraces([tx], IDENTITY, fakeRegistry(), fakeLabels(CONTRACTS));
+  const toExt1 = result.outbound.edges.find((e) => e.destination === EXT1);
+  expect(toExt1?.calls).toBe(3);
+  expect(toExt1?.txs).toBe(1);
+  // One transaction contributes at most one proof, no matter how many of
+  // its frames match the edge.
+  expect(toExt1?.examples).toHaveLength(1);
+  expect(toExt1?.examples[0]).toEqual({ hash: "0xtx-three", block: 200, path: "0" });
+});
+
+test("proofs from distinct transactions fill the list newest first, capped at three", async () => {
+  const singleFrameTx = (hash: string, blockNumber: number): TraceTx => ({
+    hash,
+    blockNumber,
+    root: frame(EOA1, PROXY, SIG.deposit, "call", [frame(PROXY, EXT1, SIG.extTransfer, "call")]),
+  });
+  const txs = [singleFrameTx("0xtx-a", 300), singleFrameTx("0xtx-b", 301), singleFrameTx("0xtx-c", 302), singleFrameTx("0xtx-d", 303)];
+  const result = await aggregateTraces(txs, IDENTITY, fakeRegistry(), fakeLabels(CONTRACTS));
+  const toExt1 = result.outbound.edges.find((e) => e.destination === EXT1);
+  // The cap is a display limit only: every frame and every transaction is
+  // still counted, even though only 3 of the 4 transactions get a proof.
+  expect(toExt1?.calls).toBe(4);
+  expect(toExt1?.txs).toBe(4);
+  expect(toExt1?.examples).toHaveLength(3);
+  expect(toExt1?.examples.map((e) => e.hash)).toEqual(["0xtx-d", "0xtx-c", "0xtx-b"]);
+  expect(toExt1?.examples.map((e) => e.block)).toEqual([303, 302, 301]);
 });
 
 const SLOW_CHAIN: ChainConfig = {

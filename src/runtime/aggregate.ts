@@ -10,7 +10,7 @@
  */
 
 import { selectorOfInput } from "../rpc";
-import type { CallFrame, CallType, ContractAggregate, FunctionCount, InboundEdge, OutboundEdge, Selector, TraceTx } from "../types";
+import type { CallFrame, CallType, ContractAggregate, FunctionCount, InboundEdge, OutboundEdge, Selector, TraceTx, TxRef } from "../types";
 
 /** The subset of `SignatureRegistry` this module needs. A real registry satisfies it structurally. */
 export interface SelectorResolver {
@@ -42,6 +42,7 @@ interface OutboundDraft {
   txs: Set<string>;
   lastBlock?: number;
   lastTx?: string;
+  examples: Map<string, TxRef>;
 }
 
 interface InboundDraft {
@@ -54,6 +55,7 @@ interface InboundDraft {
   txs: Set<string>;
   lastBlock?: number;
   lastTx?: string;
+  examples: Map<string, TxRef>;
 }
 
 interface ContractDraft {
@@ -61,34 +63,72 @@ interface ContractDraft {
   calls: number;
   txs: Set<string>;
   /** Counterparty's own functions: destination selectors (outbound) or caller selectors (inbound). */
-  ownFunctions: Map<string, { selector?: Selector; calls: number }>;
+  ownFunctions: Map<string, FunctionCountDraft>;
   /** The target's own functions involved in these calls. */
-  targetFunctions: Map<string, { selector?: Selector; calls: number }>;
+  targetFunctions: Map<string, FunctionCountDraft>;
+  examples: Map<string, TxRef>;
 }
 
-function bumpFunctionCount(map: Map<string, { selector?: Selector; calls: number }>, selector: Selector | undefined): void {
+interface FunctionCountDraft {
+  selector?: Selector;
+  calls: number;
+  examples: Map<string, TxRef>;
+}
+
+/** Records at most one proof per transaction, keeping the first frame the walk finds for it. */
+function addExample(examples: Map<string, TxRef>, tx: TraceTx, path: number[]): void {
+  if (!examples.has(tx.hash)) examples.set(tx.hash, { hash: tx.hash, block: tx.blockNumber, path: path.join(",") || "root" });
+}
+
+/** Orders two frame paths the same way their index chains would sort: numeric component by numeric component. */
+function comparePaths(a: string, b: string): number {
+  const pa = a.split(",").map(Number);
+  const pb = b.split(",").map(Number);
+  const len = Math.min(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+    if (diff !== 0) return diff;
+  }
+  return pa.length - pb.length;
+}
+
+/**
+ * Newest block first, then by frame path, capped at 3. One transaction can
+ * contribute at most one proof (see `addExample`), so the cap favours
+ * distinct transactions over repeated frames of a single transaction. The
+ * cap is a display limit only: `calls` and `txs` are tracked separately and
+ * never shrink because of it.
+ */
+function finishExamples(examples: Map<string, TxRef>): TxRef[] {
+  return [...examples.values()].sort((a, b) => b.block - a.block || comparePaths(a.path ?? "", b.path ?? "")).slice(0, 3);
+}
+
+function bumpFunctionCount(map: Map<string, FunctionCountDraft>, selector: Selector | undefined, tx: TraceTx, path: number[]): void {
   const key = selector ?? "";
   const entry = map.get(key);
   if (entry) entry.calls++;
-  else map.set(key, { selector, calls: 1 });
+  else map.set(key, { selector, calls: 1, examples: new Map() });
+  addExample(map.get(key)!.examples, tx, path);
 }
 
 function bumpContract(
   contracts: Map<string, ContractDraft>,
   address: string,
-  txHash: string,
+  tx: TraceTx,
+  path: number[],
   ownSelector: Selector | undefined,
   targetSelector: Selector | undefined,
 ): void {
   let draft = contracts.get(address);
   if (!draft) {
-    draft = { address, calls: 0, txs: new Set(), ownFunctions: new Map(), targetFunctions: new Map() };
+    draft = { address, calls: 0, txs: new Set(), ownFunctions: new Map(), targetFunctions: new Map(), examples: new Map() };
     contracts.set(address, draft);
   }
   draft.calls++;
-  draft.txs.add(txHash);
-  bumpFunctionCount(draft.ownFunctions, ownSelector);
-  bumpFunctionCount(draft.targetFunctions, targetSelector);
+  draft.txs.add(tx.hash);
+  addExample(draft.examples, tx, path);
+  bumpFunctionCount(draft.ownFunctions, ownSelector, tx, path);
+  bumpFunctionCount(draft.targetFunctions, targetSelector, tx, path);
 }
 
 /**
@@ -102,12 +142,13 @@ function walkFrame(
   enclosing: Selector | undefined,
   identity: Set<string>,
   tx: TraceTx,
+  path: number[],
   outboundEdges: Map<string, OutboundDraft>,
   inboundEdges: Map<string, InboundDraft>,
   delegatecalls: Map<string, OutboundDraft>,
   outboundContracts: Map<string, ContractDraft>,
   inboundContracts: Map<string, ContractDraft>,
-  targetFunctionCalls: Map<string, { selector?: Selector; calls: number }>,
+  targetFunctionCalls: Map<string, FunctionCountDraft>,
   labels: LabelSource,
 ): void {
   const from = frame.from.toLowerCase();
@@ -125,15 +166,16 @@ function walkFrame(
     const key = `${enclosing ?? ""}|${to}|${selectorOfInput(frame.input) ?? ""}|${frame.callType}`;
     let draft = draftMap.get(key);
     if (!draft) {
-      draft = { targetSelector: enclosing, destination: to, destinationSelector: selectorOfInput(frame.input), callType: frame.callType, calls: 0, txs: new Set() };
+      draft = { targetSelector: enclosing, destination: to, destinationSelector: selectorOfInput(frame.input), callType: frame.callType, calls: 0, txs: new Set(), examples: new Map() };
       draftMap.set(key, draft);
     }
     draft.calls++;
     draft.txs.add(tx.hash);
     draft.lastBlock = tx.blockNumber;
     draft.lastTx = tx.hash;
+    addExample(draft.examples, tx, path);
     if (frame.callType !== "delegatecall") {
-      bumpContract(outboundContracts, to, tx.hash, selectorOfInput(frame.input), enclosing);
+      bumpContract(outboundContracts, to, tx, path, selectorOfInput(frame.input), enclosing);
     }
   }
 
@@ -144,24 +186,26 @@ function walkFrame(
     const key = `${from}|${callerSelector ?? ""}|${targetSelector ?? ""}|${frame.callType}`;
     let draft = inboundEdges.get(key);
     if (!draft) {
-      draft = { caller: from, callerSelector, callerIsEoa, targetSelector, callType: frame.callType, calls: 0, txs: new Set() };
+      draft = { caller: from, callerSelector, callerIsEoa, targetSelector, callType: frame.callType, calls: 0, txs: new Set(), examples: new Map() };
       inboundEdges.set(key, draft);
     }
     draft.calls++;
     draft.txs.add(tx.hash);
     draft.lastBlock = tx.blockNumber;
     draft.lastTx = tx.hash;
-    bumpContract(inboundContracts, from, tx.hash, callerSelector, targetSelector);
-    bumpFunctionCount(targetFunctionCalls, targetSelector);
+    addExample(draft.examples, tx, path);
+    bumpContract(inboundContracts, from, tx, path, callerSelector, targetSelector);
+    bumpFunctionCount(targetFunctionCalls, targetSelector, tx, path);
   }
 
-  for (const child of frame.children) {
+  frame.children.forEach((child, index) => {
     walkFrame(
       child,
       frame,
       childEnclosing,
       identity,
       tx,
+      [...path, index],
       outboundEdges,
       inboundEdges,
       delegatecalls,
@@ -170,12 +214,12 @@ function walkFrame(
       targetFunctionCalls,
       labels,
     );
-  }
+  });
 }
 
-function collectFunctionCounts(map: Map<string, { selector?: Selector; calls: number }>, registry: SelectorResolver): FunctionCount[] {
+function collectFunctionCounts(map: Map<string, FunctionCountDraft>, registry: SelectorResolver): FunctionCount[] {
   return [...map.values()]
-    .map((entry) => ({ selector: entry.selector, signature: registry.lookup(entry.selector).signature, calls: entry.calls }))
+    .map((entry) => ({ selector: entry.selector, signature: registry.lookup(entry.selector).signature, calls: entry.calls, examples: finishExamples(entry.examples) }))
     .sort((a, b) => b.calls - a.calls);
 }
 
@@ -193,6 +237,7 @@ function finishOutboundEdges(drafts: Map<string, OutboundDraft>, registry: Selec
       txs: d.txs.size,
       lastBlock: d.lastBlock,
       lastTx: d.lastTx,
+      examples: finishExamples(d.examples),
     }))
     .sort((a, b) => b.calls - a.calls);
 }
@@ -212,6 +257,7 @@ function finishInboundEdges(drafts: Map<string, InboundDraft>, registry: Selecto
       txs: d.txs.size,
       lastBlock: d.lastBlock,
       lastTx: d.lastTx,
+      examples: finishExamples(d.examples),
     }))
     .sort((a, b) => b.calls - a.calls);
 }
@@ -225,9 +271,11 @@ function finishContracts(drafts: Map<string, ContractDraft>, registry: SelectorR
       txs: d.txs.size,
       functions: collectFunctionCounts(d.ownFunctions, registry),
       targetFunctions: collectFunctionCounts(d.targetFunctions, registry),
+      examples: finishExamples(d.examples),
     }))
     .sort((a, b) => b.calls - a.calls);
 }
+
 
 /** Every selector that appears anywhere in the drafted edges, for one bulk resolve call. */
 function collectSelectors(
@@ -304,7 +352,7 @@ export async function aggregateTraces(
   const delegatecalls = new Map<string, OutboundDraft>();
   const outboundContracts = new Map<string, ContractDraft>();
   const inboundContracts = new Map<string, ContractDraft>();
-  const targetFunctionCalls = new Map<string, { selector?: Selector; calls: number }>();
+  const targetFunctionCalls = new Map<string, FunctionCountDraft>();
 
   // Callers that arrive with no parent frame default to EOA; verifying
   // that against the label book needs `labels.info`, so counterparty
@@ -319,6 +367,7 @@ export async function aggregateTraces(
       undefined,
       identitySet,
       tx,
+      [],
       outboundEdges,
       inboundEdges,
       delegatecalls,

@@ -64,6 +64,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 12,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://etherscan.io/tx/",
   },
   {
     id: 8453,
@@ -76,6 +77,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 2,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://basescan.org/tx/",
     probeNote: "The Blockscout instance answers, but it returned HTTP 500 under load during the probe. Repeated analyses of one address can lose the source view for that reason.",
   },
   {
@@ -88,6 +90,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 0.45,
     nativeSymbol: "BNB",
     sourcify: true,
+    explorerTx: "https://bscscan.com/tx/",
     probeNote: "No Blockscout v2 instance is listed for this chain id. trace_filter covers discovery.",
   },
   {
@@ -101,6 +104,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 0.25,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://arbiscan.io/tx/",
     probeNote: "trace_filter is not available on this chain, so candidates come from Blockscout.",
   },
   {
@@ -114,6 +118,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 1.5,
     nativeSymbol: "POL",
     sourcify: true,
+    explorerTx: "https://polygonscan.com/tx/",
     probeNote: "trace_filter stopped working after the Erigon to Bor migration, so candidates come from Blockscout.",
   },
   {
@@ -127,6 +132,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 2,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://optimistic.etherscan.io/tx/",
   },
   {
     id: 57073,
@@ -139,6 +145,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 1,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://explorer.inkonchain.com/tx/",
   },
   {
     id: 100,
@@ -151,6 +158,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 5.12,
     nativeSymbol: "xDAI",
     sourcify: true,
+    explorerTx: "https://gnosisscan.io/tx/",
   },
   {
     id: 80094,
@@ -162,6 +170,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 2,
     nativeSymbol: "BERA",
     sourcify: true,
+    explorerTx: "https://berascan.com/tx/",
     probeNote: "No Blockscout v2 instance is listed for this chain id. trace_filter covers discovery.",
   },
   {
@@ -175,6 +184,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 2,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://worldscan.org/tx/",
   },
   {
     id: 130,
@@ -187,6 +197,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 1,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://uniscan.xyz/tx/",
   },
   {
     id: 59144,
@@ -199,6 +210,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 6.78,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://lineascan.build/tx/",
   },
   {
     id: 42220,
@@ -211,6 +223,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 1,
     nativeSymbol: "CELO",
     sourcify: true,
+    explorerTx: "https://celoscan.io/tx/",
   },
   {
     id: 146,
@@ -222,6 +235,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 1.56,
     nativeSymbol: "S",
     sourcify: true,
+    explorerTx: "https://sonicscan.org/tx/",
     probeNote: "No Blockscout v2 instance is listed for this chain id. trace_filter covers discovery.",
   },
   {
@@ -235,6 +249,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 6.52,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://era.zksync.network/tx/",
     probeNote: "trace_filter is not available on this chain, so candidates come from Blockscout.",
   },
   {
@@ -247,6 +262,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 2,
     nativeSymbol: "RON",
     sourcify: true,
+    explorerTx: "https://app.roninchain.com/tx/",
     probeNote: "The listed explorer is a Conduit-hosted rollup explorer, not a Blockscout v2 API, so it does not count. trace_filter covers discovery.",
   },
   {
@@ -260,6 +276,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 4.95,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://scrollscan.com/tx/",
     probeNote: "trace_filter is not available on this chain, so candidates come from Blockscout.",
   },
   {
@@ -273,6 +290,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 2,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://soneium.blockscout.com/tx/",
   },
   {
     id: 7777777,
@@ -284,6 +302,7 @@ export const CHAINS: ChainConfig[] = [
     blockTimeSec: 2,
     nativeSymbol: "ETH",
     sourcify: true,
+    explorerTx: "https://explorer.zora.energy/tx/",
     probeNote: "No Blockscout v2 instance is listed for this chain id. trace_filter covers discovery.",
   },
 ];

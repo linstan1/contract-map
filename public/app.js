@@ -58,6 +58,66 @@ function el(tag, attrs = {}, children = []) {
   return node;
 }
 
+/* --------------------------------------------------------------- proofs */
+//
+// Every observed edge carries the transactions that prove it. This section
+// turns a `TxRef` list into clickable proof links to a block explorer.
+// When the chain has no known explorer, the app shows the raw hash as
+// text with a copy control instead of a dead link. A row with no example
+// renders nothing, because nothing proves it.
+
+function explorerTxUrl(hash) {
+  const base = state.result && state.result.meta && state.result.meta.explorerTx;
+  return base ? base + hash : null;
+}
+
+function shortHash(hash) {
+  if (!hash) return "?";
+  return hash.length > 14 ? hash.slice(0, 6) + "\u2026" + hash.slice(-4) : hash;
+}
+
+/** One proof transaction: a link when an explorer is known, a hash plus copy control otherwise. */
+function proofNode(tx) {
+  const url = explorerTxUrl(tx.hash);
+  if (url) {
+    return el("a", {
+      class: "proof-link mono",
+      href: url,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      title: `Block ${tx.block}`,
+      text: shortHash(tx.hash) + " \u2197",
+    });
+  }
+  const wrap = el("span", { class: "proof-fallback", title: `Block ${tx.block}` }, [
+    el("span", { class: "proof-hash mono", text: shortHash(tx.hash) }),
+  ]);
+  wrap.appendChild(copyButton(tx.hash));
+  return wrap;
+}
+
+/**
+ * A compact proof column for one row: the newest transaction plus a
+ * toggle for the rest. Returns `null` when the row has no proof, so the
+ * caller renders an empty placeholder instead of a broken link.
+ */
+function renderProofs(examples) {
+  if (!examples || !examples.length) return null;
+  const group = el("span", { class: "proof-group" });
+  group.appendChild(el("span", { class: "proof-label", text: "proof:" }));
+  group.appendChild(proofNode(examples[0]));
+  if (examples.length > 1) {
+    const rest = examples.slice(1);
+    const moreBtn = el("button", { class: "proof-more-btn ghost small", type: "button", text: `+${rest.length}` });
+    const morePanel = el("span", { class: "proof-more-panel", hidden: "" });
+    for (const tx of rest) morePanel.appendChild(proofNode(tx));
+    moreBtn.addEventListener("click", () => { morePanel.hidden = !morePanel.hidden; });
+    group.appendChild(moreBtn);
+    group.appendChild(morePanel);
+  }
+  return group;
+}
+
 /* ---------------------------------------------------------------- state */
 
 const state = {
@@ -939,6 +999,7 @@ function renderFunctionDetail(selector) {
       row.appendChild(el("span", { class: "flow-arrow", text: "" }));
       row.appendChild(el("span", {}));
       row.appendChild(el("span", { class: "flow-count", text: `${e.calls} calls / ${e.txs} txs` }));
+      row.appendChild(renderProofs(e.examples) || el("span", {}));
       list.appendChild(row);
     }
     whoPanel.appendChild(list);
@@ -997,6 +1058,8 @@ function renderFunctionDetail(selector) {
       const badges = el("div", { class: "outbound-badges" });
       badges.appendChild(el("span", { class: "badge mutability", text: `Possible from code: ${c.possibleFromCode ? "yes" : "no"}` }));
       badges.appendChild(el("span", { class: "badge " + (c.observedOnchain ? "observed" : "possible"), text: `Observed onchain: ${c.observedOnchain ? "yes" : "no"}${c.observedOnchain ? ` (${c.observedCalls} calls, ${c.observedTxs} txs)` : ""}` }));
+      const outProofs = renderProofs(c.examples);
+      if (outProofs) badges.appendChild(outProofs);
       row.appendChild(badges);
       list.appendChild(row);
     }
@@ -1011,6 +1074,8 @@ function renderFunctionDetail(selector) {
   execPanel.appendChild(el("p", { class: "panel-title", text: "Observed execution" }));
   if (fm && fm.observed.calls > 0) {
     execPanel.appendChild(el("p", { class: "summary-text", text: `Observed ${fm.observed.calls} entries across ${fm.observed.txs} transactions in the traced window.` }));
+    const execProofs = renderProofs(fm.observed.examples);
+    if (execProofs) execPanel.appendChild(el("div", { class: "exec-proof-row" }, [execProofs]));
   } else {
     execPanel.appendChild(el("p", { class: "empty-note", text: "No sampled transaction exercises this function in the traced window." }));
   }
@@ -1057,6 +1122,8 @@ function contractRollupCard(agg, direction) {
       el("span", { text: String(f.calls) }),
     ]));
   }
+  const proofs = renderProofs(agg.examples);
+  if (proofs) card.appendChild(el("div", { class: "rollup-proof-row" }, [proofs]));
   return card;
 }
 
@@ -1080,6 +1147,7 @@ function renderCallsFrom() {
       row.appendChild(el("span", { class: "flow-arrow", text: "\u2192" }));
       row.appendChild(el("span", { class: "flow-seg", text: externalFnDisplay(e.destinationSignature, e.destinationSelector), title: fnTitle(e.destinationSignature, e.destinationSelector) }));
       row.appendChild(el("span", { class: "flow-count", text: observed ? `${e.calls} calls` : "possible only" }));
+      row.appendChild(renderProofs(e.examples) || el("span", {}));
       list.appendChild(row);
     }
     host.appendChild(list);
@@ -1110,6 +1178,7 @@ function renderCallsFrom() {
       row.appendChild(el("span", { class: "flow-arrow", text: "" }));
       row.appendChild(el("span", {}));
       row.appendChild(el("span", { class: "flow-count", text: `${e.calls} calls / ${e.txs} txs` }));
+      row.appendChild(renderProofs(e.examples) || el("span", {}));
       list.appendChild(row);
     }
     panel.appendChild(list);
@@ -1138,6 +1207,7 @@ function renderCallsInto() {
       row.appendChild(el("span", { class: "flow-arrow", text: "\u2192" }));
       row.appendChild(el("span", { class: "flow-seg", text: targetFnDisplay(e.targetSelector, e.targetSignature), title: fnTitle(e.targetSignature, e.targetSelector) }));
       row.appendChild(el("span", { class: "flow-count", text: `${e.calls} calls` }));
+      row.appendChild(renderProofs(e.examples) || el("span", {}));
       list.appendChild(row);
     }
     host.appendChild(list);
@@ -1180,6 +1250,7 @@ function renderGraphView() {
 
   const controller = renderGraph(container, r, {
     onSelectFunction: (selector) => { if (selector) openFunctionDetail(selector); },
+    explorerTx: r.meta.explorerTx,
   });
   state.graphController = controller;
   controller.setCollapsed(state.graphCollapsed);

@@ -46,6 +46,7 @@ import type {
   StateAccess,
   StaticExternalCall,
   TokenInfo,
+  TxRef,
 } from "./types";
 
 export interface AnalyzeOptions {
@@ -285,6 +286,7 @@ export async function analyzeContract(options: AnalyzeOptions): Promise<Analysis
       durationMs: Date.now() - started,
       depth,
       dataSources: [...new Set(dataSources)],
+      explorerTx: chain.explorerTx,
     },
     overview: {
       likelyType: statics.likelyType,
@@ -611,6 +613,9 @@ function buildFunctionMap(fn: FunctionAnalysis, runtime: RuntimeAnalysis): Funct
     observed: {
       txs: Math.max(observedTxs, inbound.reduce((sum, e) => sum + e.txs, 0)),
       calls: observedEntry?.calls ?? 0,
+      /* Entries into this function come from the target function counts, and
+       * from the inbound edges when no count carries a proof. */
+      examples: pickProofs([...(observedEntry?.examples ?? []), ...inbound.flatMap((e) => e.examples)]),
     },
     inbound,
   };
@@ -653,6 +658,7 @@ function mergeExternalCalls(fn: FunctionAnalysis, edges: OutboundEdge[]): Merged
       observedOnchain: matches.length > 0,
       observedCalls: calls,
       observedTxs: txs,
+      examples: pickProofs(matches.flatMap((edge) => edge.examples)),
       via: call.via,
     });
   }
@@ -671,12 +677,30 @@ function mergeExternalCalls(fn: FunctionAnalysis, edges: OutboundEdge[]): Merged
       observedOnchain: true,
       observedCalls: edge.calls,
       observedTxs: edge.txs,
+      examples: edge.examples,
       via: [],
     });
   }
 
   merged.sort((a, b) => b.observedCalls - a.observedCalls || a.functionLabel.localeCompare(b.functionLabel));
   return merged;
+}
+
+/**
+ * Chooses the proofs a reader sees for one row.
+ *
+ * Rows can merge several edges, so proofs arrive duplicated and unsorted.
+ * Keep the newest block first, one proof per transaction, and at most three,
+ * because the row shows links and not a ledger. The cap never changes a
+ * count.
+ */
+function pickProofs(refs: TxRef[]): TxRef[] {
+  const byTx = new Map<string, TxRef>();
+  for (const ref of refs) {
+    const held = byTx.get(ref.hash);
+    if (!held || ref.block > held.block) byTx.set(ref.hash, ref);
+  }
+  return [...byTx.values()].sort((a, b) => b.block - a.block || (a.path ?? "").localeCompare(b.path ?? "")).slice(0, 3);
 }
 
 function matchesCallSite(call: StaticExternalCall, edge: OutboundEdge): boolean {

@@ -48,6 +48,14 @@ export interface ChainConfig {
   nativeSymbol: string;
   /** `true` when the Sourcify repository serves this chain id. */
   sourcify?: boolean;
+  /**
+   * Base URL for one transaction on a public explorer, ending in `/tx/`.
+   *
+   * The interface turns every observed edge into a link here, so a reader can
+   * open the transaction that proves it. Blockscout serves as the fallback
+   * when a chain has no other public explorer.
+   */
+  explorerTx?: string;
   /** What the live probe found, for the provenance panel. */
   probeNote?: string;
 }
@@ -281,6 +289,8 @@ export interface FunctionCount {
   selector?: Selector;
   signature?: string;
   calls: number;
+  /** Transactions that prove these calls, newest first. */
+  examples?: TxRef[];
 }
 
 /** target function -> destination contract -> destination function. */
@@ -296,8 +306,25 @@ export interface OutboundEdge {
   txs: number;
   lastBlock?: number;
   lastTx?: string;
+  /**
+   * Transactions that prove this exact edge, newest first.
+   *
+   * Every observed claim in this application must be checkable by hand, so
+   * each edge carries the transactions it was derived from. The interface
+   * turns them into links to a block explorer. The list is capped, and the
+   * cap never changes `calls` or `txs`.
+   */
+  examples: TxRef[];
   /** `true` when static analysis also finds this call in code. */
   possibleFromCode?: boolean;
+}
+
+/** One transaction that proves an observed claim. */
+export interface TxRef {
+  hash: string;
+  block: number;
+  /** Path of the frame inside the trace tree, for example `1,11,1`. */
+  path?: string;
 }
 
 /** caller contract -> caller function -> target function. */
@@ -315,6 +342,8 @@ export interface InboundEdge {
   txs: number;
   lastBlock?: number;
   lastTx?: string;
+  /** Transactions that prove this edge, newest first. */
+  examples: TxRef[];
 }
 
 /** Contract-level roll-up for either direction. */
@@ -331,6 +360,8 @@ export interface ContractAggregate {
   functions: FunctionCount[];
   /** Target functions involved in those calls. */
   targetFunctions: FunctionCount[];
+  /** Transactions that prove calls with this counterparty, newest first. */
+  examples: TxRef[];
 }
 
 export interface TraceWindow {
@@ -414,6 +445,8 @@ export interface MergedExternalCall {
   observedOnchain: boolean;
   observedCalls: number;
   observedTxs: number;
+  /** Transactions that prove the observed part of this row, newest first. */
+  examples: TxRef[];
   via: string[];
 }
 
@@ -428,7 +461,7 @@ export interface FunctionMap {
   /** Ordered plain-English account of one execution. */
   narrative: string[];
   externalCalls: MergedExternalCall[];
-  observed: { txs: number; calls: number };
+  observed: { txs: number; calls: number; examples: TxRef[] };
   inbound: InboundEdge[];
 }
 
@@ -459,6 +492,8 @@ export interface AnalysisMeta {
   durationMs: number;
   depth: Depth;
   dataSources: string[];
+  /** Explorer base URL for one transaction, so the page can link every proof. */
+  explorerTx?: string;
 }
 
 export type Depth = "quick" | "standard" | "deep";

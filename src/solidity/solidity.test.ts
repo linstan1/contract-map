@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { describe, expect, test } from "bun:test";
 import { analyzeSources } from "./index";
 import type { SourceFile } from "../types";
@@ -141,9 +142,20 @@ describe("ABI entry with no source", () => {
   });
 });
 
+/**
+ * An optional check against a real verified contract.
+ *
+ * The source of a live protocol carries its own licence, so this repository
+ * does not vendor it. Point `VAULT_SOURCE` at a local copy to run the check:
+ *   VAULT_SOURCE=/path/to/VaultV2.sol bun test
+ * Without that variable the test skips, so a clean clone and CI stay green.
+ */
+const vaultSource = process.env.VAULT_SOURCE;
+const runVaultCheck = vaultSource && existsSync(vaultSource) ? test : test.skip;
+
 describe("real Morpho VaultV2 source", () => {
-  test("produces a sane exposed-function surface with no empty list and no fabricated signatures", async () => {
-    const content = await Bun.file("C:/tmp/VaultV2.sol").text();
+  runVaultCheck("produces a sane exposed-function surface with no empty list and no fabricated signatures", async () => {
+    const content = await Bun.file(vaultSource as string).text();
     const result = analyzeSources({ files: [{ path: "VaultV2.sol", content }], contractName: "VaultV2", abi: [], address: "0x7" });
 
     expect(result.contractName).toBe("VaultV2");

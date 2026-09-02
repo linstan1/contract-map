@@ -736,7 +736,7 @@ tbody tr.fn-row:hover { background: var(--bg-2); }
 
 .flow-row {
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr auto;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto auto;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
@@ -790,6 +790,74 @@ tbody tr.fn-row:hover { background: var(--bg-2); }
   color: var(--text-2);
   display: flex;
   justify-content: space-between;
+}
+
+.rollup-proof-row {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+/*
+ * A proof links an observed row to the transaction that produced it.
+ * `.proof-link` is a real link to a block explorer. `.proof-fallback`
+ * shows the hash as text with a copy control when no explorer is known.
+ */
+
+.proof-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  position: relative;
+}
+
+.proof-label {
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.proof-link {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-dim);
+  white-space: nowrap;
+}
+
+.proof-link:hover { border-bottom-style: solid; }
+
+.proof-fallback {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-1);
+  white-space: nowrap;
+}
+
+.proof-hash { font-family: var(--font-mono); }
+
+.proof-more-btn {
+  padding: 1px 5px;
+  font-size: 10px;
+  color: var(--text-2);
+}
+
+.proof-more-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-s);
+  padding: var(--space-2);
+  z-index: 30;
+  min-width: 160px;
 }
 
 /* -------------------------------------------------------------- graph */
@@ -850,6 +918,35 @@ tbody tr.fn-row:hover { background: var(--bg-2); }
   height: 2px;
   margin-right: 5px;
   vertical-align: middle;
+}
+
+.graph-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.graph-edge-panel {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-m);
+  background: var(--bg-2);
+  padding: var(--space-3);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.graph-edge-panel-title {
+  color: var(--text-0);
+}
+
+.graph-edge-panel-proofs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
 }
 
 /* ------------------------------------------------------------- review */

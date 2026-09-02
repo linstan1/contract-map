@@ -15,7 +15,8 @@
       "4byte",
       "trace_filter",
       "debug_traceTransaction"
-    ]
+    ],
+    "explorerTx": "https://etherscan.io/tx/"
   },
   "overview": {
     "likelyType": "ERC4626 lending vault (proxy)",
@@ -1119,7 +1120,21 @@
           "txs": 233,
           "lastBlock": 20096361,
           "lastTx": "0x6e553f650x23b872dd0000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0x6a180f9966529886765f63b99616365d122332f6e88782acd75f58d83efbab4b",
+              "block": 20096361
+            },
+            {
+              "hash": "0xc7a17d9df2d208228ea48d62b567cffff1a83ced2718227e62cd209ea464b91f",
+              "block": 20096264
+            },
+            {
+              "hash": "0x65914abe87e8ac3d5f2ab050e6a67184f117cabe7bced93e1ba5736329e8aa9a",
+              "block": 20096167
+            }
+          ]
         },
         {
           "targetSelector": "0x6e553f65",
@@ -1131,7 +1146,8 @@
           "callType": "call",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0x6e553f65",
@@ -1145,7 +1161,21 @@
           "txs": 233,
           "lastBlock": 20084552,
           "lastTx": "0x6e553f650x1d4516470000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0xb95d811685504600177ddc4f3c92bb0f24a449e2dbc171a732c9ca7744ab4f7d",
+              "block": 20084552
+            },
+            {
+              "hash": "0xc22d2efa614d8378a797e1ba4b358db96fd41d974c74bb1019c6f63e6810c64c",
+              "block": 20084455
+            },
+            {
+              "hash": "0x101018f81f002126449d2c32265457c15bbaf0137060c5d580d97d4f1f262993",
+              "block": 20084358
+            }
+          ]
         },
         {
           "targetSelector": "0x94bf804d",
@@ -1157,7 +1187,8 @@
           "callType": "call",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0xb460af94",
@@ -1171,7 +1202,17 @@
           "txs": 40,
           "lastBlock": 20102368,
           "lastTx": "0xb460af940x69328dec0000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0x925f947092a5e60482cc81902c34296a78ed46997f2729fef6b9de728e593e4c",
+              "block": 20102368
+            },
+            {
+              "hash": "0x0ef3d8d2bc14e16cb89480b059137f0d49bd724bc6a9dd32b5f0d0bc925b9987",
+              "block": 20102271
+            }
+          ]
         },
         {
           "targetSelector": "0xb460af94",
@@ -1185,7 +1226,17 @@
           "txs": 40,
           "lastBlock": 20078223,
           "lastTx": "0xb460af940xa9059cbb0000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0xd36ef7359c8053b9e904373b99a0105959518f1c046bf39949153ccfb02a2b17",
+              "block": 20078223
+            },
+            {
+              "hash": "0xc7aa9b0cbd4d2ed94041d2197862fdbedb2816c8955f7c67324432b10b412a12",
+              "block": 20078126
+            }
+          ]
         },
         {
           "targetSelector": "0xba087652",
@@ -1199,7 +1250,17 @@
           "txs": 40,
           "lastBlock": 20120438,
           "lastTx": "0xba0876520x69328dec0000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0x8135e4bec12ce2e9d2dea6dbcf0b8a0f8e2335841e06b9aba4d3b470fdce650e",
+              "block": 20120438
+            },
+            {
+              "hash": "0x3089dec571f02934c406365b111340c83254573a6dbd7163ea3bb53520d4e94a",
+              "block": 20120341
+            }
+          ]
         },
         {
           "targetSelector": "0xba087652",
@@ -1213,7 +1274,13 @@
           "txs": 10,
           "lastBlock": 20107247,
           "lastTx": "0xba0876520x2e1a7d4d0000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0xaa10f04bd623707284750eed0dd44ef37e6556c5448107d6db22618135196215",
+              "block": 20107247
+            }
+          ]
         },
         {
           "targetSelector": "0x01e1d114",
@@ -1225,7 +1292,8 @@
           "callType": "staticcall",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0xc6e6f592",
@@ -1237,7 +1305,8 @@
           "callType": "staticcall",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0x07a2d13a",
@@ -1249,7 +1318,8 @@
           "callType": "staticcall",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0x8980f11f",
@@ -1263,7 +1333,13 @@
           "txs": 1,
           "lastBlock": 20108405,
           "lastTx": "0x8980f11f0xa9059cbb0000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0x9cb15bae21b5879b30f22e0e46b4ebab1a681dd953295e1f92b739222b84c363",
+              "block": 20108405
+            }
+          ]
         },
         {
           "targetSelector": "0x8980f11f",
@@ -1277,7 +1353,8 @@
           "txs": 1,
           "lastBlock": 20090698,
           "lastTx": "0x8980f11f0xa9059cbb0000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0x8980f11f",
@@ -1289,7 +1366,8 @@
           "callType": "call",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0x8456cb59",
@@ -1301,7 +1379,8 @@
           "callType": "call",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0x8c2a993e",
@@ -1313,7 +1392,8 @@
           "callType": "call",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0x6e553f65",
@@ -1325,7 +1405,8 @@
           "callType": "call",
           "calls": 0,
           "txs": 0,
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": []
         },
         {
           "targetSelector": "0xb460af94",
@@ -1339,7 +1420,17 @@
           "txs": 40,
           "lastBlock": 20116263,
           "lastTx": "0xb460af940x41976e090000000000000000000000000000000000000000000000",
-          "possibleFromCode": true
+          "possibleFromCode": true,
+          "examples": [
+            {
+              "hash": "0xdd00cfb961b3a0ad4b09ee941cc8ada607fc06fc284a0fd2ce6ae322943e1a80",
+              "block": 20116263
+            },
+            {
+              "hash": "0x1a3a10ada13af27b43b1598992b07f1bfd222259afda9c2ffa4230bddc90b959",
+              "block": 20116166
+            }
+          ]
         }
       ],
       "contracts": [
@@ -1375,6 +1466,20 @@
               "selector": "0xb460af94",
               "signature": "withdraw(uint256,address,address)",
               "calls": 40
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x0993baf0b89de0eb9a401848f5f192846c25572d9475152597816155d8bc9fe3",
+              "block": 20123456
+            },
+            {
+              "hash": "0x0727e3ad3eaf319e4f51939d59392139f7528f7d8c055472ca2a87667becb39c",
+              "block": 20123359
+            },
+            {
+              "hash": "0x6b6fec115dd822e6bcc303ee425a8e4b8a580943c3654f88bb10367f86497b8d",
+              "block": 20123262
             }
           ]
         },
@@ -1421,6 +1526,16 @@
               "signature": "totalAssets()",
               "calls": 0
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x4c9a2f024aeb261fd5a0ba1ed088ee6f9cf53cecd2ecf5bb15f45fa1e6b34f7e",
+              "block": 20123445
+            },
+            {
+              "hash": "0x9d2802b690a836b61a54b1fccdb7c2a76bdace29b45e55484a68886e31343c11",
+              "block": 20123348
+            }
           ]
         },
         {
@@ -1440,6 +1555,20 @@
               "selector": "0x6e553f65",
               "signature": "deposit(uint256,address)",
               "calls": 233
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x4904f366e5e7ebd7583d60d354f1deeac1653a38472f641465595530c5002cbc",
+              "block": 20123434
+            },
+            {
+              "hash": "0x8d388591cc4114a955d729485725ac46a22b18792215b502dc0348bc2591b7f9",
+              "block": 20123337
+            },
+            {
+              "hash": "0x179e744e161f91c8b85e9450f375bc282cccb776ca01edd82392e471951701fd",
+              "block": 20123240
             }
           ]
         },
@@ -1465,6 +1594,12 @@
               "selector": "0x8c2a993e",
               "signature": "setFeeRecipient(address)",
               "calls": 0
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x09dbe21c2a6afdc6eb2047b6714268f510607130a865393793d4111fc44c14fe",
+              "block": 20123423
             }
           ]
         },
@@ -1496,6 +1631,16 @@
               "signature": "withdraw(uint256,address,address)",
               "calls": 40
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x260c1bdf2c2c2122f79d04b21ab71687b5c0dcd0d080e8f3f7b3bacfd5933955",
+              "block": 20123412
+            },
+            {
+              "hash": "0xbef157b1312d4c7d608edfe2ed83f1eddd6b49fce69e575833a77c8415b9218f",
+              "block": 20123315
+            }
           ]
         },
         {
@@ -1515,6 +1660,12 @@
               "selector": "0x8980f11f",
               "signature": "rescueTokens(address,uint256)",
               "calls": 1
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x371f8b576a054c9083d21898a2d35e2094940449f5877000c6a5651b2bf7bb02",
+              "block": 20123401
             }
           ]
         },
@@ -1536,6 +1687,12 @@
               "signature": "rescueTokens(address,uint256)",
               "calls": 1
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x3bfb2d2306db674df0f847bc06bff5827ae58c51bb7d6160b9e8bf9825a4611f",
+              "block": 20123390
+            }
           ]
         },
         {
@@ -1556,7 +1713,8 @@
               "signature": "rescueTokens(address,uint256)",
               "calls": 0
             }
-          ]
+          ],
+          "examples": []
         },
         {
           "address": "0x999b00000000000000000000000000000000ff",
@@ -1576,7 +1734,8 @@
               "signature": "pause()",
               "calls": 0
             }
-          ]
+          ],
+          "examples": []
         },
         {
           "address": "0x999c00000000000000000000000000000000ab",
@@ -1596,7 +1755,8 @@
               "signature": "deposit(uint256,address)",
               "calls": 0
             }
-          ]
+          ],
+          "examples": []
         }
       ],
       "totalCalls": 647
@@ -1615,7 +1775,21 @@
           "calls": 288,
           "txs": 240,
           "lastBlock": 20076693,
-          "lastTx": "0x5555555555555555555555555555555555eeee0x6e553f650000000000000000"
+          "lastTx": "0x5555555555555555555555555555555555eeee0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0x42408d7079cbf2f45ce8c7836661548feb556348785ff6fd8167fe6dce723d2d",
+              "block": 20076693
+            },
+            {
+              "hash": "0xedd9a9b3290f54f14e4c6a56d0a9a821bf98bcd77d2c201fad414047c66ec2ce",
+              "block": 20076596
+            },
+            {
+              "hash": "0x62104321dab8f945110424a0e03be9d5c342af2bd58016a1c8d580b93f8baa16",
+              "block": 20076499
+            }
+          ]
         },
         {
           "caller": "0x6666666666666666666666666666666666ffff",
@@ -1627,7 +1801,13 @@
           "calls": 5,
           "txs": 5,
           "lastBlock": 20112116,
-          "lastTx": "0x6666666666666666666666666666666666ffff0x6e553f650000000000000000"
+          "lastTx": "0x6666666666666666666666666666666666ffff0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0xd72b626603a8f4825d4f2add51a9f656323b817001306007234cf7cb148dc103",
+              "block": 20112116
+            }
+          ]
         },
         {
           "caller": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
@@ -1641,7 +1821,17 @@
           "calls": 60,
           "txs": 60,
           "lastBlock": 20091922,
-          "lastTx": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0x6e553f6500000000000000"
+          "lastTx": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0x6e553f6500000000000000",
+          "examples": [
+            {
+              "hash": "0x12e7debc7f5d08f538558f4ad55210cfe2f029751326ab52e029e5e4de6c4882",
+              "block": 20091922
+            },
+            {
+              "hash": "0x08832fae3337bdcbe1ecbdf6b45a73a67d54b1fffd9e24e92e97021a7ebf44d3",
+              "block": 20091825
+            }
+          ]
         },
         {
           "caller": "0x999800000000000000000000000000000000cc",
@@ -1655,7 +1845,13 @@
           "calls": 22,
           "txs": 20,
           "lastBlock": 20116099,
-          "lastTx": "0x999800000000000000000000000000000000cc0x6e553f650000000000000000"
+          "lastTx": "0x999800000000000000000000000000000000cc0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0x757bc50c1d15ea0f7ac336e8ab45714a03945bd99c84cd4a694c33c31a1250ae",
+              "block": 20116099
+            }
+          ]
         },
         {
           "caller": "0x999900000000000000000000000000000000dd",
@@ -1669,7 +1865,13 @@
           "calls": 18,
           "txs": 15,
           "lastBlock": 20121939,
-          "lastTx": "0x999900000000000000000000000000000000dd0x6e553f650000000000000000"
+          "lastTx": "0x999900000000000000000000000000000000dd0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0xc29f565fe76cf7813b3b97e082fe147bb2795425ea39b5f52dd1c2c1f298b6d3",
+              "block": 20121939
+            }
+          ]
         },
         {
           "caller": "0x7777777777777777777777777777777777aaaa",
@@ -1683,7 +1885,17 @@
           "calls": 52,
           "txs": 40,
           "lastBlock": 20091402,
-          "lastTx": "0x7777777777777777777777777777777777aaaa0xba0876520000000000000000"
+          "lastTx": "0x7777777777777777777777777777777777aaaa0xba0876520000000000000000",
+          "examples": [
+            {
+              "hash": "0x0f4631f4355d528a847a8098cca94abf6497714e65a352bc3f5d6b7174b527eb",
+              "block": 20091402
+            },
+            {
+              "hash": "0xff7fb9e92eb4bbe06610c51462a191972d972dd93cd4ee510055ac61e39266a0",
+              "block": 20091305
+            }
+          ]
         },
         {
           "caller": "0x9995ffffffffffffffffffffffffffffffffff",
@@ -1697,7 +1909,13 @@
           "calls": 9,
           "txs": 9,
           "lastBlock": 20090436,
-          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0xba0876520000000000000000"
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0xba0876520000000000000000",
+          "examples": [
+            {
+              "hash": "0xc4260c7f21a9feb1f35b0e632e875b66c2207417aa89ba277e335a73c9861d46",
+              "block": 20090436
+            }
+          ]
         },
         {
           "caller": "0x999800000000000000000000000000000000cc",
@@ -1711,7 +1929,13 @@
           "calls": 14,
           "txs": 12,
           "lastBlock": 20120964,
-          "lastTx": "0x999800000000000000000000000000000000cc0xb460af940000000000000000"
+          "lastTx": "0x999800000000000000000000000000000000cc0xb460af940000000000000000",
+          "examples": [
+            {
+              "hash": "0x65f632380e3db06004bd609a7b3acfef1bff4552f8af34cec5b87ee847efbe08",
+              "block": 20120964
+            }
+          ]
         },
         {
           "caller": "0x999600000000000000000000000000000000aa",
@@ -1725,7 +1949,13 @@
           "calls": 6,
           "txs": 6,
           "lastBlock": 20096687,
-          "lastTx": "0x999600000000000000000000000000000000aa0xb460af940000000000000000"
+          "lastTx": "0x999600000000000000000000000000000000aa0xb460af940000000000000000",
+          "examples": [
+            {
+              "hash": "0x71392780eeb67e040a62f3a5f1cc8b30437b8b11fc560810a99cef92c49917e1",
+              "block": 20096687
+            }
+          ]
         },
         {
           "caller": "0x8888888888888888888888888888888888aaaa",
@@ -1739,7 +1969,13 @@
           "calls": 3,
           "txs": 3,
           "lastBlock": 20116216,
-          "lastTx": "0x8888888888888888888888888888888888aaaa0x8c2a993e0000000000000000"
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8c2a993e0000000000000000",
+          "examples": [
+            {
+              "hash": "0x367b67b4ec93b81301d4453c494bdda861bdab13e9b83c3cfcf0cdd3be7385c0",
+              "block": 20116216
+            }
+          ]
         },
         {
           "caller": "0x8888888888888888888888888888888888aaaa",
@@ -1753,7 +1989,13 @@
           "calls": 1,
           "txs": 1,
           "lastBlock": 20118433,
-          "lastTx": "0x8888888888888888888888888888888888aaaa0x8456cb590000000000000000"
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8456cb590000000000000000",
+          "examples": [
+            {
+              "hash": "0xa4a54ea2787e30360226c90f253bfd6000f0189c80071363ecc77a2f813bbfd0",
+              "block": 20118433
+            }
+          ]
         },
         {
           "caller": "0x999a00000000000000000000000000000000ee",
@@ -1767,7 +2009,13 @@
           "calls": 2,
           "txs": 2,
           "lastBlock": 20105935,
-          "lastTx": "0x999a00000000000000000000000000000000ee0x8980f11f0000000000000000"
+          "lastTx": "0x999a00000000000000000000000000000000ee0x8980f11f0000000000000000",
+          "examples": [
+            {
+              "hash": "0xd69e421219ed8523582be90b7d8109516b521e0d916a2154a6035698c47e1dc7",
+              "block": 20105935
+            }
+          ]
         },
         {
           "caller": "0x999700000000000000000000000000000000bb",
@@ -1781,7 +2029,17 @@
           "calls": 140,
           "txs": 90,
           "lastBlock": 20079228,
-          "lastTx": "0x999700000000000000000000000000000000bb0x07a2d13a0000000000000000"
+          "lastTx": "0x999700000000000000000000000000000000bb0x07a2d13a0000000000000000",
+          "examples": [
+            {
+              "hash": "0x9c395124c6602b5ca56f7ce4838d939574e08ba4ab01d328bb4714b92a259cf7",
+              "block": 20079228
+            },
+            {
+              "hash": "0x687522e98f2fcc6cd153f67b558d6efa27c19a03ee02926c89cdcc0bafe7d079",
+              "block": 20079131
+            }
+          ]
         },
         {
           "caller": "0x9999999999999999999999999999999999e0a1",
@@ -1793,7 +2051,21 @@
           "calls": 296,
           "txs": 296,
           "lastBlock": 20120764,
-          "lastTx": "0x9999999999999999999999999999999999e0a10xa9059cbb0000000000000000"
+          "lastTx": "0x9999999999999999999999999999999999e0a10xa9059cbb0000000000000000",
+          "examples": [
+            {
+              "hash": "0x1fd8bf6365281b5ad7452a41a6ba5ee6be0ace192e5a9099e39a8e965fbe7418",
+              "block": 20120764
+            },
+            {
+              "hash": "0x1048697b6374c4988d65b8f67681dcc943abad9edd5055639a40ae17be61a5b3",
+              "block": 20120667
+            },
+            {
+              "hash": "0x630f5d115286a27122f4bb549a89d1074a4309815d9c51f04ffa6f7abd81b1a9",
+              "block": 20120570
+            }
+          ]
         },
         {
           "caller": "0x9999999999999999999999999999999999e0a2",
@@ -1805,7 +2077,17 @@
           "calls": 44,
           "txs": 44,
           "lastBlock": 20084781,
-          "lastTx": "0x9999999999999999999999999999999999e0a20x095ea7b30000000000000000"
+          "lastTx": "0x9999999999999999999999999999999999e0a20x095ea7b30000000000000000",
+          "examples": [
+            {
+              "hash": "0x13e62de084c1d3965c722e2bcaacded9e15309b285c5e03dab3b8674e3f9b18e",
+              "block": 20084781
+            },
+            {
+              "hash": "0x13a64bd6101a20a605c1ee22471adb99eee6803a90f99a0d8dfb52720c538f86",
+              "block": 20084684
+            }
+          ]
         },
         {
           "caller": "0x999700000000000000000000000000000000bb",
@@ -1819,7 +2101,17 @@
           "calls": 133,
           "txs": 88,
           "lastBlock": 20103979,
-          "lastTx": "0x999700000000000000000000000000000000bb0xc6e6f5920000000000000000"
+          "lastTx": "0x999700000000000000000000000000000000bb0xc6e6f5920000000000000000",
+          "examples": [
+            {
+              "hash": "0xf0564446f8f4beb44da84f44692e9c66898b38168dcbc41ad1c7b0a4a8bd19ea",
+              "block": 20103979
+            },
+            {
+              "hash": "0xfad31bbfd0a51d4a5f4766242aa126cdd230150ac12683384a09ffca667f656d",
+              "block": 20103882
+            }
+          ]
         },
         {
           "caller": "0x9995ffffffffffffffffffffffffffffffffff",
@@ -1833,7 +2125,13 @@
           "calls": 9,
           "txs": 9,
           "lastBlock": 20078814,
-          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0x095ea7b30000000000000000"
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0x095ea7b30000000000000000",
+          "examples": [
+            {
+              "hash": "0x26dcb16bc99ab5c5a85295b7dbb89fc111691b994c12ff0bfde64b0a7fa9216e",
+              "block": 20078814
+            }
+          ]
         }
       ],
       "contracts": [
@@ -1855,6 +2153,20 @@
               "signature": "deposit(uint256,address)",
               "calls": 288
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x7f5dd2e9fbbd080fca50a3ed9d556c74951dae291949f8b50a0a6d282573ed00",
+              "block": 20123456
+            },
+            {
+              "hash": "0xe6d4380c99965135723080665cf4ad069a37fef5fe68cf69f4463a09d796668f",
+              "block": 20123359
+            },
+            {
+              "hash": "0x0d431ba923278795395363f7ac7618bc83ce0f7d56d25345cc3d14e07e9e2b68",
+              "block": 20123262
+            }
           ]
         },
         {
@@ -1872,6 +2184,12 @@
               "selector": "0x6e553f65",
               "signature": "deposit(uint256,address)",
               "calls": 5
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x09db075340aebcd30ac53cadf50bcf752d866ced8348725f6c486f01470feb4e",
+              "block": 20123443
             }
           ]
         },
@@ -1892,6 +2210,16 @@
               "selector": "0x6e553f65",
               "signature": "deposit(uint256,address)",
               "calls": 60
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0xa94d16cb6a197ea7d416aa3c145a8b3b47b225ebe3966a5ddd9806d104302657",
+              "block": 20123430
+            },
+            {
+              "hash": "0x9bfe2aabf951fb79ac42fa189058e457e01fe64e0432ce1f6fcf07971b34d4f2",
+              "block": 20123333
             }
           ]
         },
@@ -1918,6 +2246,12 @@
               "signature": "withdraw(uint256,address,address)",
               "calls": 14
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x46ae4ff8ceafdddee06b82bdeb55acf28877e604f4edbb6c0b8d2ad93fa08e0c",
+              "block": 20123417
+            }
           ]
         },
         {
@@ -1938,6 +2272,12 @@
               "signature": "deposit(uint256,address)",
               "calls": 18
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x47eee866dfa3042091deb12bc74144368cdcea6481e0ebd0d6fcdd1e458167a4",
+              "block": 20123404
+            }
           ]
         },
         {
@@ -1957,6 +2297,16 @@
               "selector": "0xba087652",
               "signature": "redeem(uint256,address,address)",
               "calls": 52
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x2d09af1c25b9792d8fd15eec5c6d0b2e692bccb80c6d3134eb16ffe68e1ed1ad",
+              "block": 20123391
+            },
+            {
+              "hash": "0x78cb36b124279fe7304e039d571108db2e75d4559dbdfdc90e097c0d1c62a0c4",
+              "block": 20123294
             }
           ]
         },
@@ -1988,6 +2338,12 @@
               "signature": "approve(address,uint256)",
               "calls": 9
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x1570ef920735ba0defa98cd920c18ded27db69144644ffb6823dab46b6ef6257",
+              "block": 20123378
+            }
           ]
         },
         {
@@ -2007,6 +2363,12 @@
               "selector": "0xb460af94",
               "signature": "withdraw(uint256,address,address)",
               "calls": 6
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x85524f710d92c10d7d39001eff75dbf6f1e0deddd4e8fd73695171bc3b9804ab",
+              "block": 20123365
             }
           ]
         },
@@ -2033,6 +2395,12 @@
               "signature": "pause()",
               "calls": 1
             }
+          ],
+          "examples": [
+            {
+              "hash": "0xdb3be61db49584d11f5bd95d7bcf9734c5c8e1b794bd795352b5c435995b3aec",
+              "block": 20123352
+            }
           ]
         },
         {
@@ -2052,6 +2420,12 @@
               "selector": "0x8980f11f",
               "signature": "rescueTokens(address,uint256)",
               "calls": 2
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0xd0e785a3d7ea6148f15ba4eb88c0e755e9de2a59ce36690e198d0bde4acdb1a2",
+              "block": 20123339
             }
           ]
         },
@@ -2078,6 +2452,20 @@
               "signature": "convertToShares(uint256)",
               "calls": 133
             }
+          ],
+          "examples": [
+            {
+              "hash": "0xa65b7ca8fe713a63ffac9304d1ecfdb2a355a9a5a2b86e76b5693e6d587901c3",
+              "block": 20123326
+            },
+            {
+              "hash": "0x34250302b9e6b58bbcbfe0337f993ca72fc40f7a2e849a26ee12277a72d09499",
+              "block": 20123229
+            },
+            {
+              "hash": "0xf7c55b5dcdc78ceec61a3be601a0f237e5a061d59293468bc24f075292171244",
+              "block": 20123132
+            }
           ]
         },
         {
@@ -2096,6 +2484,20 @@
               "signature": "transfer(address,uint256)",
               "calls": 296
             }
+          ],
+          "examples": [
+            {
+              "hash": "0x521a925a501ea90d5140b69214d5a26110ccc159838f38abcbb767788c078f9a",
+              "block": 20123313
+            },
+            {
+              "hash": "0xc5af78413c4ff73eddb69ed1126d9588aa320e63ca41632c642c4e465ac1fbb7",
+              "block": 20123216
+            },
+            {
+              "hash": "0x757023878080de744109d17bc272318c582a82a6a787f8cef2cc5bdb433ecfef",
+              "block": 20123119
+            }
           ]
         },
         {
@@ -2113,6 +2515,16 @@
               "selector": "0x095ea7b3",
               "signature": "approve(address,uint256)",
               "calls": 44
+            }
+          ],
+          "examples": [
+            {
+              "hash": "0x14f50246fdd288dab42c555b7297b9a1665af47b8dfe19a4c3bec66528374c3d",
+              "block": 20123300
+            },
+            {
+              "hash": "0x3ac9a18318361a42a711c11b39c0c3fcf8487551b2a4be0d1740729d88fa8364",
+              "block": 20123203
             }
           ]
         }
@@ -2180,7 +2592,21 @@
         "txs": 610,
         "lastBlock": 20123456,
         "lastTx": "0xdd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd4",
-        "possibleFromCode": true
+        "possibleFromCode": true,
+        "examples": [
+          {
+            "hash": "0x304c8f889c071b220eab6bd4315de0f0c4f8b26b5cf04ca82ff1c3b45787c6b0",
+            "block": 20123456
+          },
+          {
+            "hash": "0xf354a6f93ec6e2b2de9388201d7b7286f6c543e329739fb70ec1a9a3fbe80838",
+            "block": 20123359
+          },
+          {
+            "hash": "0xb8d1e10dae6a1601c34496505a468ed0238a3fd894e2a8b2704d0b1515e7f0ea",
+            "block": 20123262
+          }
+        ]
       }
     ],
     "unresolvedSelectors": [
@@ -2282,7 +2708,21 @@
           "observedOnchain": true,
           "observedCalls": 240,
           "observedTxs": 233,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0x7abe734e60a2a67bb1e3aac614005e6418ca6344e2098d2d9e296e6938d3e1ef",
+              "block": 20123456
+            },
+            {
+              "hash": "0x8ab9c653ce751bfea3765d6bcf82fd556d5aa794926f413bdaafcfbf3176e623",
+              "block": 20123359
+            },
+            {
+              "hash": "0xc9e734ddde2ae233bc07fcc8b1d5ddc83b60149836c45649906d986192f5416f",
+              "block": 20123262
+            }
+          ]
         },
         {
           "destination": "0x3333333333333333333333333333333333cccc",
@@ -2296,7 +2736,8 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         },
         {
           "destination": "0x9991bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -2310,7 +2751,21 @@
           "observedOnchain": true,
           "observedCalls": 233,
           "observedTxs": 233,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0xc163f5c3ac1210a26d987cc5f164181df7a94c235f441bb720c3cc8c250bcb26",
+              "block": 20123422
+            },
+            {
+              "hash": "0x3f06c892eb39b4ffac45d90aa0c0244c1656e9d2d16ad32158fc06a659ede782",
+              "block": 20123325
+            },
+            {
+              "hash": "0x42e2c0bfccbec8a97d2b9e6fa275766b9d585d56c60fff61d1dbb0886d267aba",
+              "block": 20123228
+            }
+          ]
         },
         {
           "destination": "0x999c00000000000000000000000000000000ab",
@@ -2324,12 +2779,27 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 340,
-        "calls": 393
+        "calls": 393,
+        "examples": [
+          {
+            "hash": "0xdc2af06f7179fe1a98e407b21f84cc84a3d65046b79db36c3b03784db46ac170",
+            "block": 20123456
+          },
+          {
+            "hash": "0x81630960323f739c7e9eb7b4f280dd860ddcc07597025751546a2efef453015b",
+            "block": 20123359
+          },
+          {
+            "hash": "0x1733aa26e940ce6171ec80166e3c85fdb905698b5b456e72e53427003f3b0c58",
+            "block": 20123262
+          }
+        ]
       },
       "inbound": [
         {
@@ -2344,7 +2814,21 @@
           "calls": 288,
           "txs": 240,
           "lastBlock": 20076693,
-          "lastTx": "0x5555555555555555555555555555555555eeee0x6e553f650000000000000000"
+          "lastTx": "0x5555555555555555555555555555555555eeee0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0x17b2cfd7e14d70b3374ecc6990bc3bc1e553b9901650e3c816f533ef1d75f24b",
+              "block": 20076693
+            },
+            {
+              "hash": "0x531a82c3827ce4eea78e2f1c18773453a916599cab6c7dfce8e89e33e8dcebd8",
+              "block": 20076596
+            },
+            {
+              "hash": "0xcba390c812f42093d05c37d5669747940a71a94d227e3594dcc04edfdf42df98",
+              "block": 20076499
+            }
+          ]
         },
         {
           "caller": "0x6666666666666666666666666666666666ffff",
@@ -2356,7 +2840,13 @@
           "calls": 5,
           "txs": 5,
           "lastBlock": 20112116,
-          "lastTx": "0x6666666666666666666666666666666666ffff0x6e553f650000000000000000"
+          "lastTx": "0x6666666666666666666666666666666666ffff0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0xa72a4e0d6d50c0adf1abaa16ce55cbe0629e5403cf5702d2839ffc08f20384dc",
+              "block": 20112116
+            }
+          ]
         },
         {
           "caller": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
@@ -2370,7 +2860,17 @@
           "calls": 60,
           "txs": 60,
           "lastBlock": 20091922,
-          "lastTx": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0x6e553f6500000000000000"
+          "lastTx": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0x6e553f6500000000000000",
+          "examples": [
+            {
+              "hash": "0x50ccad8bed82897c1e2b7c5c66c78e6108995139233de2ae15a21b60be495c08",
+              "block": 20091922
+            },
+            {
+              "hash": "0xe22f5de6406e51e25d6e5e9dc368b251f3a8a41ba7092b72191a0688e4e9482b",
+              "block": 20091825
+            }
+          ]
         },
         {
           "caller": "0x999800000000000000000000000000000000cc",
@@ -2384,7 +2884,13 @@
           "calls": 22,
           "txs": 20,
           "lastBlock": 20116099,
-          "lastTx": "0x999800000000000000000000000000000000cc0x6e553f650000000000000000"
+          "lastTx": "0x999800000000000000000000000000000000cc0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0xfe7e557ad1b3dc6679538fcf079a989b4b90b7f47f99480aaed7fe731ff96987",
+              "block": 20116099
+            }
+          ]
         },
         {
           "caller": "0x999900000000000000000000000000000000dd",
@@ -2398,7 +2904,13 @@
           "calls": 18,
           "txs": 15,
           "lastBlock": 20121939,
-          "lastTx": "0x999900000000000000000000000000000000dd0x6e553f650000000000000000"
+          "lastTx": "0x999900000000000000000000000000000000dd0x6e553f650000000000000000",
+          "examples": [
+            {
+              "hash": "0x96ed85482be6dac9c0deea4c6119263768f416636114848131af1ba2fd6caa49",
+              "block": 20121939
+            }
+          ]
         }
       ]
     },
@@ -2454,12 +2966,14 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 0,
-        "calls": 0
+        "calls": 0,
+        "examples": []
       },
       "inbound": []
     },
@@ -2544,7 +3058,17 @@
           "observedOnchain": true,
           "observedCalls": 40,
           "observedTxs": 40,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0x7e554d9c255d0135623485857de5770c559657e82310088462cc80e1b4ce38bf",
+              "block": 20123456
+            },
+            {
+              "hash": "0x07b3d42ce179ea06ff5bc460ac9c4da771f5004a067a5d6fd2df898942d04fa3",
+              "block": 20123359
+            }
+          ]
         },
         {
           "destination": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -2558,7 +3082,17 @@
           "observedOnchain": true,
           "observedCalls": 40,
           "observedTxs": 40,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0x297f46b3aa4ade2e7eb408661d7c1df7e92769784ae736c3a2ef5004abd437e7",
+              "block": 20123439
+            },
+            {
+              "hash": "0x6d45b98897ac3c92b8f0018447e67f6db9ce4befcc9e7f6ef4f0957a45aa6d51",
+              "block": 20123342
+            }
+          ]
         },
         {
           "destination": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -2572,12 +3106,28 @@
           "observedOnchain": true,
           "observedCalls": 40,
           "observedTxs": 40,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0xd657a4f0b8657850e6b17a40c62371e4633f7c15f36139f7fdcea99ecc89b6fc",
+              "block": 20123422
+            },
+            {
+              "hash": "0x0edd44e90cf07c74efd713be39aaf9f6b6987de02023eee913189095a8ab2369",
+              "block": 20123325
+            }
+          ]
         }
       ],
       "observed": {
         "txs": 18,
-        "calls": 20
+        "calls": 20,
+        "examples": [
+          {
+            "hash": "0xc7b79d98fe8ab6a79f6595f279b19ac33a301e844850db1b77a529d672473724",
+            "block": 20123456
+          }
+        ]
       },
       "inbound": [
         {
@@ -2592,7 +3142,13 @@
           "calls": 14,
           "txs": 12,
           "lastBlock": 20120964,
-          "lastTx": "0x999800000000000000000000000000000000cc0xb460af940000000000000000"
+          "lastTx": "0x999800000000000000000000000000000000cc0xb460af940000000000000000",
+          "examples": [
+            {
+              "hash": "0xa59bd800c2e57fd68b80cf963fd38fac30eb922c96683aeda16caa5c25a0d879",
+              "block": 20120964
+            }
+          ]
         },
         {
           "caller": "0x999600000000000000000000000000000000aa",
@@ -2606,7 +3162,13 @@
           "calls": 6,
           "txs": 6,
           "lastBlock": 20096687,
-          "lastTx": "0x999600000000000000000000000000000000aa0xb460af940000000000000000"
+          "lastTx": "0x999600000000000000000000000000000000aa0xb460af940000000000000000",
+          "examples": [
+            {
+              "hash": "0x8e7568915b600697d814ef6299f244392ca22f0e47c04b1173c98b54689d624e",
+              "block": 20096687
+            }
+          ]
         }
       ]
     },
@@ -2671,7 +3233,17 @@
           "observedOnchain": true,
           "observedCalls": 40,
           "observedTxs": 40,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0x7255f98dfcd5ad6f2e5d8a59843071725d5723213a84a0f91cbf1cc269e43cd4",
+              "block": 20123456
+            },
+            {
+              "hash": "0x3661896a5d89920ad7a655c6b8ddb627393b8a5bdfd56c310b16daa41823d0aa",
+              "block": 20123359
+            }
+          ]
         },
         {
           "destination": "0x9993dddddddddddddddddddddddddddddddddd",
@@ -2685,12 +3257,28 @@
           "observedOnchain": true,
           "observedCalls": 12,
           "observedTxs": 10,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0x845d280546d8fb82b4abfcd2fc6d08f9bc367629e48e26e543db12ec7301ad84",
+              "block": 20123439
+            }
+          ]
         }
       ],
       "observed": {
         "txs": 49,
-        "calls": 61
+        "calls": 61,
+        "examples": [
+          {
+            "hash": "0x1cc22b6940d32c2cc63c753bf325070459ba951d061ca2d4fc00bdc99d64a7b5",
+            "block": 20123456
+          },
+          {
+            "hash": "0x0436465416d4f013b6c8f29b32c475f357018801a49500260618e58de9476a10",
+            "block": 20123359
+          }
+        ]
       },
       "inbound": [
         {
@@ -2705,7 +3293,17 @@
           "calls": 52,
           "txs": 40,
           "lastBlock": 20091402,
-          "lastTx": "0x7777777777777777777777777777777777aaaa0xba0876520000000000000000"
+          "lastTx": "0x7777777777777777777777777777777777aaaa0xba0876520000000000000000",
+          "examples": [
+            {
+              "hash": "0x64163fb1a1c190c7e327f5a9c817397ba854710abde34d33d60662946536d072",
+              "block": 20091402
+            },
+            {
+              "hash": "0x4e04d5e02a50ea6d27eeb63b48e92df8d609b95793e1869025a8f638e082a5d5",
+              "block": 20091305
+            }
+          ]
         },
         {
           "caller": "0x9995ffffffffffffffffffffffffffffffffff",
@@ -2719,7 +3317,13 @@
           "calls": 9,
           "txs": 9,
           "lastBlock": 20090436,
-          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0xba0876520000000000000000"
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0xba0876520000000000000000",
+          "examples": [
+            {
+              "hash": "0x5d0b2d130816c79a4fb90fb437880ba12e514138f953b9a428014d0aeb61cb09",
+              "block": 20090436
+            }
+          ]
         }
       ]
     },
@@ -2755,7 +3359,21 @@
       "externalCalls": [],
       "observed": {
         "txs": 296,
-        "calls": 296
+        "calls": 296,
+        "examples": [
+          {
+            "hash": "0x2ecf52a6c5667ebb3cf3ba98ff9aa003d7c5850bac679117e9ccea5b7245799d",
+            "block": 20123456
+          },
+          {
+            "hash": "0x36908ae374d19f3ab497d6ea12a23a2f7797c5946885d9fed1be74ba74318972",
+            "block": 20123359
+          },
+          {
+            "hash": "0xb2028adfdc567558c80d87d98c8372cecfc7844ebdf7d62ffbec6e9980f6b45b",
+            "block": 20123262
+          }
+        ]
       },
       "inbound": [
         {
@@ -2768,7 +3386,21 @@
           "calls": 296,
           "txs": 296,
           "lastBlock": 20120764,
-          "lastTx": "0x9999999999999999999999999999999999e0a10xa9059cbb0000000000000000"
+          "lastTx": "0x9999999999999999999999999999999999e0a10xa9059cbb0000000000000000",
+          "examples": [
+            {
+              "hash": "0xdb3c80bfc4790e21ccb9d1ef0f86e765e1abfe4148b3413128ca99db8a0fa8aa",
+              "block": 20120764
+            },
+            {
+              "hash": "0x48e055c639eafcbdc5d2ff73d95d17d1c677ed31b5a29e7d0087c5d705ceb4ee",
+              "block": 20120667
+            },
+            {
+              "hash": "0x73dd54c8ca3c6a31e518655afed3574ac4cde3a0d309fe08893d09a42d3cca4b",
+              "block": 20120570
+            }
+          ]
         }
       ]
     },
@@ -2805,7 +3437,8 @@
       "externalCalls": [],
       "observed": {
         "txs": 0,
-        "calls": 0
+        "calls": 0,
+        "examples": []
       },
       "inbound": []
     },
@@ -2830,7 +3463,17 @@
       "externalCalls": [],
       "observed": {
         "txs": 53,
-        "calls": 53
+        "calls": 53,
+        "examples": [
+          {
+            "hash": "0x5cd548753e5debc8176e094b278e34f7c79e1e90bac60ddd62935286888b7926",
+            "block": 20123456
+          },
+          {
+            "hash": "0xd00836748cd3d6437c89297f97f9a83679d2eaac1d8c54d31c79c05651f00053",
+            "block": 20123359
+          }
+        ]
       },
       "inbound": [
         {
@@ -2843,7 +3486,17 @@
           "calls": 44,
           "txs": 44,
           "lastBlock": 20084781,
-          "lastTx": "0x9999999999999999999999999999999999e0a20x095ea7b30000000000000000"
+          "lastTx": "0x9999999999999999999999999999999999e0a20x095ea7b30000000000000000",
+          "examples": [
+            {
+              "hash": "0xa8efe872598e45cdd43dc14db85ebf9db9802f7b0df72abfb22c12443d03a77d",
+              "block": 20084781
+            },
+            {
+              "hash": "0x8a3eaba1efdba08c11992d69b78ced2e00184eb9319867bf8d37a99704953b81",
+              "block": 20084684
+            }
+          ]
         },
         {
           "caller": "0x9995ffffffffffffffffffffffffffffffffff",
@@ -2857,7 +3510,13 @@
           "calls": 9,
           "txs": 9,
           "lastBlock": 20078814,
-          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0x095ea7b30000000000000000"
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0x095ea7b30000000000000000",
+          "examples": [
+            {
+              "hash": "0x2a6ecd466e27de819beb8853a4ef693b94bc9bd5f21a98d8293ae7ee70bb95dd",
+              "block": 20078814
+            }
+          ]
         }
       ]
     },
@@ -2883,7 +3542,8 @@
       "externalCalls": [],
       "observed": {
         "txs": 0,
-        "calls": 0
+        "calls": 0,
+        "examples": []
       },
       "inbound": []
     },
@@ -2929,12 +3589,14 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 0,
-        "calls": 0
+        "calls": 0,
+        "examples": []
       },
       "inbound": []
     },
@@ -2979,12 +3641,23 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 88,
-        "calls": 133
+        "calls": 133,
+        "examples": [
+          {
+            "hash": "0x1ab0c210362dfb356caed3b25d6dff88b582c2ff744629d056e2a039ec4ab763",
+            "block": 20123456
+          },
+          {
+            "hash": "0xa848720b2a04ddbdd6ece7911340181936a811f2eb590ce6fe61892830eec62a",
+            "block": 20123359
+          }
+        ]
       },
       "inbound": [
         {
@@ -2999,7 +3672,17 @@
           "calls": 133,
           "txs": 88,
           "lastBlock": 20103979,
-          "lastTx": "0x999700000000000000000000000000000000bb0xc6e6f5920000000000000000"
+          "lastTx": "0x999700000000000000000000000000000000bb0xc6e6f5920000000000000000",
+          "examples": [
+            {
+              "hash": "0x0828a0f86e13875914ddbf5fee946abf8f59afc2aaee70d46ef28e5ac9ff7299",
+              "block": 20103979
+            },
+            {
+              "hash": "0xb4e12516ebcdf411fccdb01c844bea17428a050bd4f235ab1bfb7ffe26d70731",
+              "block": 20103882
+            }
+          ]
         }
       ]
     },
@@ -3044,12 +3727,23 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 90,
-        "calls": 140
+        "calls": 140,
+        "examples": [
+          {
+            "hash": "0xff57454c55e59a53bdc02410719680eafb62586f6403c06f7835bfe6ec2de180",
+            "block": 20123456
+          },
+          {
+            "hash": "0x54204055967e2f3efe59e4cc75502cb989fd8a48028b99e81d0cfe12042b2c55",
+            "block": 20123359
+          }
+        ]
       },
       "inbound": [
         {
@@ -3064,7 +3758,17 @@
           "calls": 140,
           "txs": 90,
           "lastBlock": 20079228,
-          "lastTx": "0x999700000000000000000000000000000000bb0x07a2d13a0000000000000000"
+          "lastTx": "0x999700000000000000000000000000000000bb0x07a2d13a0000000000000000",
+          "examples": [
+            {
+              "hash": "0xf1082bf6640c46b4de7f27d62b3888bd8e9c88a06b9201521ddbbe79c70a2fd5",
+              "block": 20079228
+            },
+            {
+              "hash": "0x9890b73d757e12c69403d91f4bf9202c09c45c557a9baeff93d5a291213b1034",
+              "block": 20079131
+            }
+          ]
         }
       ]
     },
@@ -3109,12 +3813,19 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 3,
-        "calls": 3
+        "calls": 3,
+        "examples": [
+          {
+            "hash": "0x068805553e684b9e1303f99be3ec0d900ca7364f433ad8c70869e8405fcbbee2",
+            "block": 20123456
+          }
+        ]
       },
       "inbound": [
         {
@@ -3129,7 +3840,13 @@
           "calls": 3,
           "txs": 3,
           "lastBlock": 20116216,
-          "lastTx": "0x8888888888888888888888888888888888aaaa0x8c2a993e0000000000000000"
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8c2a993e0000000000000000",
+          "examples": [
+            {
+              "hash": "0xa3804d47e002417aa1bd4109d7996687364869be861b4240475b7c240f0ce4d7",
+              "block": 20116216
+            }
+          ]
         }
       ]
     },
@@ -3174,12 +3891,19 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 1,
-        "calls": 1
+        "calls": 1,
+        "examples": [
+          {
+            "hash": "0x0cb0ac3e8983be9058b9f38fd08370974d6acad6fd4bb5933b69a351f79f20c8",
+            "block": 20123456
+          }
+        ]
       },
       "inbound": [
         {
@@ -3194,7 +3918,13 @@
           "calls": 1,
           "txs": 1,
           "lastBlock": 20118433,
-          "lastTx": "0x8888888888888888888888888888888888aaaa0x8456cb590000000000000000"
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8456cb590000000000000000",
+          "examples": [
+            {
+              "hash": "0xa389ceb6184882b7ee10465858d46592a7d7d2de410a8a161c4c02e6b2f12236",
+              "block": 20118433
+            }
+          ]
         }
       ]
     },
@@ -3259,7 +3989,13 @@
           "observedOnchain": true,
           "observedCalls": 1,
           "observedTxs": 1,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0x6c7889fcb895ca117da265919091804086530cd7206fe1988610670a0d4e6607",
+              "block": 20123456
+            }
+          ]
         },
         {
           "destination": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
@@ -3273,7 +4009,13 @@
           "observedOnchain": true,
           "observedCalls": 1,
           "observedTxs": 1,
-          "via": []
+          "via": [],
+          "examples": [
+            {
+              "hash": "0x24c3a88ddf31bc1dc315f10e9b6df4ead27718324b18b1a34de28df3fc28e857",
+              "block": 20123439
+            }
+          ]
         },
         {
           "destination": "0xdac17f958d2ee523a2206206994597c13d831ec",
@@ -3287,12 +4029,19 @@
           "observedOnchain": false,
           "observedCalls": 0,
           "observedTxs": 0,
-          "via": []
+          "via": [],
+          "examples": []
         }
       ],
       "observed": {
         "txs": 2,
-        "calls": 2
+        "calls": 2,
+        "examples": [
+          {
+            "hash": "0x125d64771eb79b31f1676fb471b317c2413f14820112420c6d3121518bbc84f7",
+            "block": 20123456
+          }
+        ]
       },
       "inbound": [
         {
@@ -3307,7 +4056,13 @@
           "calls": 2,
           "txs": 2,
           "lastBlock": 20105935,
-          "lastTx": "0x999a00000000000000000000000000000000ee0x8980f11f0000000000000000"
+          "lastTx": "0x999a00000000000000000000000000000000ee0x8980f11f0000000000000000",
+          "examples": [
+            {
+              "hash": "0xfdccc879d979b3c86ec71abe7c198ce6130aaec59103fabfa3592eab5e66175f",
+              "block": 20105935
+            }
+          ]
         }
       ]
     }

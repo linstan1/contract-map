@@ -162,6 +162,25 @@ A call path found in source or bytecode is reported as possible execution. It be
 
 Unobserved paths are never counted as executed.
 
+### Clickable proof on every observed row
+
+Each observed edge carries the transactions it was derived from, so no count has to be taken on trust. The interface links them to a block explorer on every row: inbound, outbound, contract roll-ups, delegatecalls and observed execution.
+
+```text
+deposit(uint256,address) → Morpho.supply(...)
+  proof  0xd78154bf…c871f   block 25889440   frame path 1,2,0
+```
+
+A row that is possible from code but not observed carries no link, because nothing proves it.
+
+Explain any transaction from the terminal, with the same walk the application uses:
+
+```bash
+bun run scripts/explain-tx.ts <txHash> <targetAddress> ethereum
+```
+
+[`docs/EXAMPLE-TRANSACTION.md`](docs/EXAMPLE-TRANSACTION.md) follows one real transaction end to end, with the full 232 frame trace committed next to it.
+
 ## Quick start
 
 Requirements: [Bun](https://bun.sh) 1.2 or later, git, and an RPC key of your own. No Node.js, no database and no wallet are needed. The tool only reads chain data, so it never asks for a private key or a signature.
@@ -447,6 +466,8 @@ contract-map/
 [`docs/CONCEPTS.md`](docs/CONCEPTS.md) covers trace trees, `trace_filter`, `debug_traceTransaction`, proxy execution, selector resolution, bytecode dispatchers and execution sampling.
 
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) covers module boundaries, pipeline invariants and extension points for chains, source languages and dispatcher patterns.
+
+[`docs/EXAMPLE-TRANSACTION.md`](docs/EXAMPLE-TRANSACTION.md) follows one real mainnet transaction from the raw trace to the inbound and outbound edges the interface shows, and explains what a proof link does and does not prove.
 
 ## Limits
 

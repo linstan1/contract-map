@@ -123,6 +123,16 @@ export class RpcClient {
   }
 
   async call<T>(method: string, params: unknown[], attempts = 4): Promise<T> {
+    /* A missing key is a configuration fault, not a transient provider
+     * fault. Resolve the endpoint once, before the retry loop, so the caller
+     * gets the instructions immediately instead of after several backoffs. */
+    let endpoint: string;
+    try {
+      endpoint = rpcUrl(this.chain);
+    } catch (error) {
+      throw new RpcError(error instanceof Error ? error.message : String(error), method);
+    }
+
     const startedAt = Date.now();
     let lastError = "";
     for (let attempt = 1; attempt <= attempts; attempt++) {
@@ -130,7 +140,7 @@ export class RpcClient {
       if (timeout <= 0) throw new RpcError(`${method}: the time budget for this stage ran out`, method);
       const release = await this.gate.acquire();
       try {
-        const response = await fetch(rpcUrl(this.chain), {
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ jsonrpc: "2.0", id: this.nextId++, method, params }),

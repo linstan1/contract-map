@@ -13,7 +13,8 @@
       "blockscout",
       "trace_filter",
       "debug_traceTransaction"
-    ]
+    ],
+    "explorerTx": "https://etherscan.io/tx/"
   },
   "overview": {
     "likelyType": "Vyper liquidity pool",
