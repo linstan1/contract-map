@@ -1,0 +1,3520 @@
+{
+  "meta": {
+    "address": "0x1111111111111111111111111111111111aaaa",
+    "chainId": 1,
+    "chainKey": "ethereum",
+    "chainLabel": "Ethereum",
+    "label": "ExampleVault",
+    "analyzedAt": "2026-09-02T12:00:00.000Z",
+    "headBlock": 20123456,
+    "durationMs": 9120,
+    "depth": "standard",
+    "dataSources": [
+      "blockscout",
+      "openchain",
+      "4byte",
+      "trace_filter",
+      "debug_traceTransaction"
+    ]
+  },
+  "overview": {
+    "likelyType": "ERC4626 lending vault (proxy)",
+    "verified": true,
+    "contractName": "ExampleVaultV2",
+    "proxy": {
+      "isProxy": true,
+      "proxyType": "eip1967_oz",
+      "implementation": "0x2222222222222222222222222222222222bbbb",
+      "implementationName": "ExampleVaultV2",
+      "detectedBy": "blockscout",
+      "conflicting": []
+    },
+    "summary": "ExampleVault accepts USDC deposits, mints share tokens, and lends assets through an external money market. Withdrawals convert shares back to assets at the current exchange rate. The owner, a governance timelock, can pause the vault and rescue stray tokens.",
+    "interfaces": [
+      "ERC20",
+      "ERC4626",
+      "ERC2612"
+    ],
+    "token": {
+      "name": "Example Vault Share",
+      "symbol": "evUSDC",
+      "decimals": 6
+    },
+    "stats": {
+      "exposedFunctions": 14,
+      "outboundContracts": 10,
+      "inboundContracts": 13,
+      "observedCalls": 1102
+    }
+  },
+  "static": {
+    "verified": true,
+    "contractName": "ExampleVaultV2",
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "language": "Solidity",
+    "proxy": {
+      "isProxy": true,
+      "proxyType": "eip1967_oz",
+      "implementation": "0x2222222222222222222222222222222222bbbb",
+      "implementationName": "ExampleVaultV2",
+      "detectedBy": "blockscout",
+      "conflicting": []
+    },
+    "likelyType": "ERC4626 lending vault (proxy)",
+    "interfaces": [
+      "ERC20",
+      "ERC4626",
+      "ERC2612"
+    ],
+    "inheritance": [
+      "ExampleVaultV2",
+      "ERC4626Upgradeable",
+      "ERC20PermitUpgradeable",
+      "ERC20Upgradeable",
+      "PausableUpgradeable",
+      "OwnableUpgradeable"
+    ],
+    "summary": "ExampleVault accepts USDC deposits, mints share tokens, and lends assets through an external money market. Withdrawals convert shares back to assets at the current exchange rate. The owner, a governance timelock, can pause the vault and rescue stray tokens.",
+    "functions": [
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Deposit(address,address,uint256,uint256)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [
+          {
+            "name": "depositCap",
+            "type": "uint256",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          }
+        ],
+        "writes": [
+          {
+            "name": "totalSupply",
+            "type": "uint256",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          },
+          {
+            "name": "balanceOf[receiver]",
+            "type": "uint256",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          }
+        ],
+        "internalCalls": [
+          {
+            "name": "_convertToShares",
+            "signature": "_convertToShares(uint256,Math.Rounding)",
+            "kind": "internal",
+            "declaredIn": "ExampleVaultV2",
+            "depth": 1,
+            "via": [],
+            "purpose": "Converts the deposited asset amount into a share amount at the current exchange rate."
+          },
+          {
+            "name": "_mint",
+            "signature": "_mint(address,uint256)",
+            "kind": "internal",
+            "declaredIn": "ERC20Upgradeable",
+            "depth": 1,
+            "via": [],
+            "purpose": "Mints the computed share amount to the receiver."
+          }
+        ],
+        "externalCalls": [
+          {
+            "destExpr": "IERC20(asset)",
+            "destination": {
+              "kind": "immutable",
+              "name": "asset",
+              "contractType": "IERC20"
+            },
+            "functionName": "transferFrom",
+            "signature": "transferFrom(address,address,uint256)",
+            "selector": "0x23b872dd",
+            "argCount": 3,
+            "callType": "call",
+            "via": [],
+            "reason": "Pulls the deposited USDC from the caller into the vault."
+          },
+          {
+            "destExpr": "IMoneyMarket(moneyMarket)",
+            "destination": {
+              "kind": "state",
+              "name": "moneyMarket",
+              "contractType": "IMoneyMarket"
+            },
+            "functionName": "supply",
+            "signature": "supply(address,uint256,address,uint16)",
+            "selector": "0x617ba037",
+            "argCount": 4,
+            "callType": "call",
+            "via": [],
+            "reason": "Forwards the deposited assets to the money market so the vault earns yield."
+          }
+        ],
+        "name": "deposit",
+        "signature": "deposit(uint256,address)",
+        "selector": "0x6e553f65",
+        "params": [
+          {
+            "name": "assets",
+            "type": "uint256"
+          },
+          {
+            "name": "receiver",
+            "type": "address"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "shares",
+            "type": "uint256"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "deposit / asset movement",
+        "whatItDoes": "Pulls USDC from the caller, credits the receiver with newly minted vault shares, and forwards the assets to the money market. It reverts when the deposit would exceed the vault cap.",
+        "bytecodeFacts": {
+          "readsStorage": true,
+          "writesStorage": true,
+          "makesCall": true,
+          "makesStaticcall": false,
+          "makesDelegatecall": false,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [
+            "0x3333333333333333333333333333333333cccc"
+          ],
+          "eventTopics": [
+            "0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d"
+          ],
+          "storageSlots": [
+            "0x0",
+            "0x3"
+          ],
+          "blocksWalked": 42,
+          "truncated": true
+        }
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Deposit(address,address,uint256,uint256)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "totalSupply",
+            "type": "uint256",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          }
+        ],
+        "internalCalls": [
+          {
+            "name": "_convertToAssets",
+            "signature": "_convertToAssets(uint256,Math.Rounding)",
+            "kind": "internal",
+            "declaredIn": "ExampleVaultV2",
+            "depth": 1,
+            "via": [],
+            "purpose": "Converts the requested share amount into the asset amount owed."
+          }
+        ],
+        "externalCalls": [
+          {
+            "destExpr": "IERC20(asset)",
+            "destination": {
+              "kind": "immutable",
+              "name": "asset",
+              "contractType": "IERC20"
+            },
+            "functionName": "transferFrom",
+            "signature": "transferFrom(address,address,uint256)",
+            "selector": "0x23b872dd",
+            "argCount": 3,
+            "callType": "call",
+            "via": [],
+            "reason": "Pulls the asset amount owed for the minted shares."
+          }
+        ],
+        "name": "mint",
+        "signature": "mint(uint256,address)",
+        "selector": "0x94bf804d",
+        "params": [
+          {
+            "name": "shares",
+            "type": "uint256"
+          },
+          {
+            "name": "receiver",
+            "type": "address"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "assets",
+            "type": "uint256"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "deposit / asset movement",
+        "whatItDoes": "Mints an exact number of shares to the receiver and pulls the equivalent USDC amount from the caller."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Withdraw(address,address,address,uint256,uint256)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "totalSupply",
+            "type": "uint256",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          },
+          {
+            "name": "balanceOf[owner]",
+            "type": "uint256",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          }
+        ],
+        "internalCalls": [
+          {
+            "name": "_convertToShares",
+            "signature": "_convertToShares(uint256,Math.Rounding)",
+            "kind": "internal",
+            "declaredIn": "ExampleVaultV2",
+            "depth": 1,
+            "via": [],
+            "purpose": "Converts the requested asset amount into the share amount to burn."
+          },
+          {
+            "name": "_burn",
+            "signature": "_burn(address,uint256)",
+            "kind": "internal",
+            "declaredIn": "ERC20Upgradeable",
+            "depth": 1,
+            "via": [],
+            "purpose": "Burns the owner's shares."
+          }
+        ],
+        "externalCalls": [
+          {
+            "destExpr": "IMoneyMarket(moneyMarket)",
+            "destination": {
+              "kind": "state",
+              "name": "moneyMarket",
+              "contractType": "IMoneyMarket"
+            },
+            "functionName": "withdraw",
+            "signature": "withdraw(address,uint256,address)",
+            "selector": "0x69328dec",
+            "argCount": 3,
+            "callType": "call",
+            "via": [],
+            "reason": "Withdraws the asset amount from the money market to this vault."
+          },
+          {
+            "destExpr": "IERC20(asset)",
+            "destination": {
+              "kind": "immutable",
+              "name": "asset",
+              "contractType": "IERC20"
+            },
+            "functionName": "transfer",
+            "signature": "transfer(address,uint256)",
+            "selector": "0xa9059cbb",
+            "argCount": 2,
+            "callType": "call",
+            "via": [],
+            "reason": "Sends the withdrawn USDC to the receiver."
+          }
+        ],
+        "name": "withdraw",
+        "signature": "withdraw(uint256,address,address)",
+        "selector": "0xb460af94",
+        "params": [
+          {
+            "name": "assets",
+            "type": "uint256"
+          },
+          {
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "name": "owner",
+            "type": "address"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "shares",
+            "type": "uint256"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function; the caller must hold an allowance when withdrawing on behalf of another owner.",
+          "gates": [
+            "_spendAllowance when caller != owner"
+          ]
+        },
+        "role": "withdrawal / asset movement",
+        "whatItDoes": "Burns the owner's shares, withdraws the equivalent USDC from the money market, and sends it to the receiver."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Withdraw(address,address,address,uint256,uint256)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "totalSupply",
+            "type": "uint256",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          }
+        ],
+        "internalCalls": [
+          {
+            "name": "_convertToAssets",
+            "signature": "_convertToAssets(uint256,Math.Rounding)",
+            "kind": "internal",
+            "declaredIn": "ExampleVaultV2",
+            "depth": 1,
+            "via": [],
+            "purpose": "Converts the redeemed share amount into the asset amount owed."
+          }
+        ],
+        "externalCalls": [
+          {
+            "destExpr": "IMoneyMarket(moneyMarket)",
+            "destination": {
+              "kind": "state",
+              "name": "moneyMarket",
+              "contractType": "IMoneyMarket"
+            },
+            "functionName": "withdraw",
+            "signature": "withdraw(address,uint256,address)",
+            "selector": "0x69328dec",
+            "argCount": 3,
+            "callType": "call",
+            "via": [],
+            "reason": "Withdraws the asset amount owed from the money market."
+          }
+        ],
+        "name": "redeem",
+        "signature": "redeem(uint256,address,address)",
+        "selector": "0xba087652",
+        "params": [
+          {
+            "name": "shares",
+            "type": "uint256"
+          },
+          {
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "name": "owner",
+            "type": "address"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "assets",
+            "type": "uint256"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function; the caller must hold an allowance when redeeming on behalf of another owner.",
+          "gates": [
+            "_spendAllowance when caller != owner"
+          ]
+        },
+        "role": "withdrawal / asset movement",
+        "whatItDoes": "Burns an exact number of the owner's shares and sends the equivalent USDC to the receiver."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Transfer(address,address,uint256)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "balanceOf[caller]",
+            "type": "uint256",
+            "declaredIn": "ERC20Upgradeable",
+            "via": []
+          },
+          {
+            "name": "balanceOf[to]",
+            "type": "uint256",
+            "declaredIn": "ERC20Upgradeable",
+            "via": []
+          }
+        ],
+        "internalCalls": [
+          {
+            "name": "_transfer",
+            "signature": "_transfer(address,address,uint256)",
+            "kind": "internal",
+            "declaredIn": "ERC20Upgradeable",
+            "depth": 1,
+            "via": [],
+            "purpose": "Moves the balance between the two accounts and emits the Transfer event."
+          }
+        ],
+        "externalCalls": [],
+        "name": "transfer",
+        "signature": "transfer(address,uint256)",
+        "selector": "0xa9059cbb",
+        "params": [
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any share holder may call this function.",
+          "gates": []
+        },
+        "role": "share accounting",
+        "whatItDoes": "Moves vault shares from the caller to another account, following standard ERC20 accounting."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Transfer(address,address,uint256)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "allowance[from][caller]",
+            "type": "uint256",
+            "declaredIn": "ERC20Upgradeable",
+            "via": []
+          }
+        ],
+        "internalCalls": [
+          {
+            "name": "_transfer",
+            "signature": "_transfer(address,address,uint256)",
+            "kind": "internal",
+            "declaredIn": "ERC20Upgradeable",
+            "depth": 1,
+            "via": [],
+            "purpose": "Moves the balance between the two accounts."
+          }
+        ],
+        "externalCalls": [],
+        "name": "transferFrom",
+        "signature": "transferFrom(address,address,uint256)",
+        "selector": "0x23b872dd",
+        "params": [
+          {
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any account holding an allowance from the owner may call this function.",
+          "gates": [
+            "_spendAllowance"
+          ]
+        },
+        "role": "share accounting",
+        "whatItDoes": "Moves vault shares between two accounts using the caller's allowance from the owner."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Approval(address,address,uint256)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "allowance[caller][spender]",
+            "type": "uint256",
+            "declaredIn": "ERC20Upgradeable",
+            "via": []
+          }
+        ],
+        "internalCalls": [],
+        "externalCalls": [],
+        "name": "approve",
+        "signature": "approve(address,uint256)",
+        "selector": "0x095ea7b3",
+        "params": [
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any share holder may call this function.",
+          "gates": []
+        },
+        "role": "share accounting",
+        "whatItDoes": "Sets the amount the spender may move on behalf of the caller."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Approval(address,address,uint256)"
+        ],
+        "notes": [
+          "Reverts when the deadline has passed or the recovered signer does not match the owner."
+        ],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "allowance[owner][spender]",
+            "type": "uint256",
+            "declaredIn": "ERC20PermitUpgradeable",
+            "via": []
+          },
+          {
+            "name": "nonces[owner]",
+            "type": "uint256",
+            "declaredIn": "ERC20PermitUpgradeable",
+            "via": []
+          }
+        ],
+        "internalCalls": [],
+        "externalCalls": [],
+        "name": "permit",
+        "signature": "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)",
+        "selector": "0xd505accf",
+        "params": [
+          {
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "name": "value",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "name": "v",
+            "type": "uint8"
+          },
+          {
+            "name": "r",
+            "type": "bytes32"
+          },
+          {
+            "name": "s",
+            "type": "bytes32"
+          }
+        ],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may relay a signed permit on behalf of the owner.",
+          "gates": [
+            "deadline check",
+            "signature recovery matches owner"
+          ]
+        },
+        "role": "share accounting / gasless approval",
+        "whatItDoes": "Sets an allowance from a signed message instead of a direct transaction from the owner."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [
+          {
+            "destExpr": "IMoneyMarket(moneyMarket)",
+            "destination": {
+              "kind": "state",
+              "name": "moneyMarket",
+              "contractType": "IMoneyMarket"
+            },
+            "functionName": "balanceOf",
+            "signature": "balanceOf(address)",
+            "selector": "0x70a08231",
+            "argCount": 1,
+            "callType": "staticcall",
+            "via": [],
+            "reason": "Reads the vault's supplied balance at the money market."
+          }
+        ],
+        "name": "totalAssets",
+        "signature": "totalAssets()",
+        "selector": "0x01e1d114",
+        "params": [],
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "view",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "accounting / view",
+        "whatItDoes": "Returns the total USDC the vault currently controls, including assets deposited with the money market.",
+        "bytecodeFacts": {
+          "readsStorage": true,
+          "writesStorage": false,
+          "makesCall": true,
+          "makesStaticcall": true,
+          "makesDelegatecall": false,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [
+            "0x3333333333333333333333333333333333cccc"
+          ],
+          "eventTopics": [],
+          "storageSlots": [
+            "0x0"
+          ],
+          "blocksWalked": 11,
+          "truncated": false
+        }
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "name": "convertToShares",
+        "signature": "convertToShares(uint256)",
+        "selector": "0xc6e6f592",
+        "params": [
+          {
+            "name": "assets",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "view",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "accounting / view",
+        "whatItDoes": "Reports how many shares a given amount of assets would buy at the current exchange rate."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "name": "convertToAssets",
+        "signature": "convertToAssets(uint256)",
+        "selector": "0x07a2d13a",
+        "params": [
+          {
+            "name": "shares",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "visibility": "external",
+        "mutability": "view",
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "accounting / view",
+        "whatItDoes": "Reports how many assets a given amount of shares is worth at the current exchange rate."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "FeeRecipientUpdated(address,address)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "feeRecipient",
+            "type": "address",
+            "declaredIn": "ExampleVaultV2",
+            "via": []
+          }
+        ],
+        "internalCalls": [],
+        "externalCalls": [],
+        "name": "setFeeRecipient",
+        "signature": "setFeeRecipient(address)",
+        "selector": "0x8c2a993e",
+        "params": [
+          {
+            "name": "recipient",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "owner",
+          "detail": "Only the contract owner, currently a 2-of-3 governance timelock, may call this function.",
+          "gates": [
+            "onlyOwner"
+          ]
+        },
+        "role": "governance / configuration",
+        "whatItDoes": "Changes the address that receives future performance fees."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [
+          "Paused(address)"
+        ],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [
+          {
+            "name": "paused",
+            "type": "bool",
+            "declaredIn": "PausableUpgradeable",
+            "via": []
+          }
+        ],
+        "internalCalls": [],
+        "externalCalls": [],
+        "name": "pause",
+        "signature": "pause()",
+        "selector": "0x8456cb59",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "owner",
+          "detail": "Only the contract owner may call this function.",
+          "gates": [
+            "onlyOwner"
+          ]
+        },
+        "role": "governance / emergency control",
+        "whatItDoes": "Stops deposits, mints, withdrawals, and redemptions until the owner unpauses the vault."
+      },
+      {
+        "modifiers": [],
+        "declaredIn": "ExampleVaultV2",
+        "events": [],
+        "notes": [
+          "The destination contract is chosen by the caller's `token` argument, not fixed in code."
+        ],
+        "hasSource": true,
+        "overloaded": false,
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [
+          {
+            "destExpr": "IERC20(token)",
+            "destination": {
+              "kind": "parameter",
+              "name": "token",
+              "contractType": "IERC20"
+            },
+            "functionName": "transfer",
+            "signature": "transfer(address,uint256)",
+            "selector": "0xa9059cbb",
+            "argCount": 2,
+            "callType": "call",
+            "via": [],
+            "reason": "Sends the rescued token balance to the owner. The destination token is caller-supplied, so it can be any ERC20 the vault holds."
+          }
+        ],
+        "name": "rescueTokens",
+        "signature": "rescueTokens(address,uint256)",
+        "selector": "0x8980f11f",
+        "params": [
+          {
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "access": {
+          "kind": "owner",
+          "detail": "Only the contract owner may call this function.",
+          "gates": [
+            "onlyOwner"
+          ]
+        },
+        "role": "governance / recovery",
+        "whatItDoes": "Sends a stray ERC20 token balance held by the vault to the owner. It refuses to move the vault's own share token or the underlying asset."
+      }
+    ],
+    "events": [
+      {
+        "name": "Deposit",
+        "signature": "Deposit(address,address,uint256,uint256)",
+        "topic0": "0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d"
+      },
+      {
+        "name": "Withdraw",
+        "signature": "Withdraw(address,address,address,uint256,uint256)",
+        "topic0": "0xfbde797d201c681b91056529119e0b02407c7bb96a4a2c75c01fc9667232c8db"
+      },
+      {
+        "name": "Transfer",
+        "signature": "Transfer(address,address,uint256)",
+        "topic0": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+      },
+      {
+        "name": "Approval",
+        "signature": "Approval(address,address,uint256)",
+        "topic0": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+      },
+      {
+        "name": "FeeRecipientUpdated",
+        "signature": "FeeRecipientUpdated(address,address)",
+        "topic0": "0x1a2f7e6d6e7b0f5a5b3d0c1e2f3a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c"
+      },
+      {
+        "name": "Paused",
+        "signature": "Paused(address)",
+        "topic0": "0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258"
+      }
+    ],
+    "unresolvedSelectors": [
+      "0xdeadbeef"
+    ],
+    "sourceFiles": [
+      "contracts/ExampleVaultV2.sol",
+      "contracts/interfaces/IMoneyMarket.sol",
+      "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol"
+    ],
+    "warnings": [
+      "The implementation contract has no public getter for the money market address; it was recovered from the `supply`/`withdraw` call sites."
+    ],
+    "sourceProvenance": "Source recovered from a verified bytecode twin at 0x4350a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d602dd on Ethereum. The behaviour described here belongs to that matching code, not to this address."
+  },
+  "runtime": {
+    "available": true,
+    "window": {
+      "fromBlock": 20073056,
+      "toBlock": 20123456,
+      "blocks": 50400,
+      "coveredBlocks": 10000,
+      "slices": [
+        {
+          "fromBlock": 20073056,
+          "toBlock": 20074056
+        },
+        {
+          "fromBlock": 20078545,
+          "toBlock": 20079545
+        },
+        {
+          "fromBlock": 20084034,
+          "toBlock": 20085034
+        },
+        {
+          "fromBlock": 20089523,
+          "toBlock": 20090523
+        },
+        {
+          "fromBlock": 20095012,
+          "toBlock": 20096012
+        },
+        {
+          "fromBlock": 20100500,
+          "toBlock": 20101500
+        },
+        {
+          "fromBlock": 20105989,
+          "toBlock": 20106989
+        },
+        {
+          "fromBlock": 20111478,
+          "toBlock": 20112478
+        },
+        {
+          "fromBlock": 20116967,
+          "toBlock": 20117967
+        },
+        {
+          "fromBlock": 20122456,
+          "toBlock": 20123456
+        }
+      ],
+      "strategy": "stratified",
+      "approxDays": 7,
+      "coveredDays": 1.39,
+      "candidateTxs": 3120,
+      "sampledTxs": 900,
+      "sampled": true,
+      "method": "trace_filter over 10 stratified 1000-block slices spread across the 7 day span, then debug_traceTransaction on 900 sampled candidates.",
+      "note": "Counts come from 10 stratified slices covering 10000 of 50400 span blocks (1.39 of 7.0 days). They are a spread sample, not lifetime totals."
+    },
+    "outbound": {
+      "edges": [
+        {
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "destination": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "destinationLabel": "USDC",
+          "destinationSelector": "0x23b872dd",
+          "destinationSignature": "transferFrom(address,address,uint256)",
+          "callType": "call",
+          "calls": 240,
+          "txs": 233,
+          "lastBlock": 20096361,
+          "lastTx": "0x6e553f650x23b872dd0000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x617ba037",
+          "destinationSignature": "supply(address,uint256,address,uint16)",
+          "callType": "call",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "destination": "0x9991bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "destinationLabel": "RewardsDistributor",
+          "destinationSelector": "0x1d451647",
+          "destinationSignature": "notify(address,uint256)",
+          "callType": "call",
+          "calls": 233,
+          "txs": 233,
+          "lastBlock": 20084552,
+          "lastTx": "0x6e553f650x1d4516470000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x94bf804d",
+          "targetSignature": "mint(uint256,address)",
+          "destination": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "destinationLabel": "USDC",
+          "destinationSelector": "0x23b872dd",
+          "destinationSignature": "transferFrom(address,address,uint256)",
+          "callType": "call",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0xb460af94",
+          "targetSignature": "withdraw(uint256,address,address)",
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x69328dec",
+          "destinationSignature": "withdraw(address,uint256,address)",
+          "callType": "call",
+          "calls": 40,
+          "txs": 40,
+          "lastBlock": 20102368,
+          "lastTx": "0xb460af940x69328dec0000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0xb460af94",
+          "targetSignature": "withdraw(uint256,address,address)",
+          "destination": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "destinationLabel": "USDC",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "callType": "call",
+          "calls": 40,
+          "txs": 40,
+          "lastBlock": 20078223,
+          "lastTx": "0xb460af940xa9059cbb0000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0xba087652",
+          "targetSignature": "redeem(uint256,address,address)",
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x69328dec",
+          "destinationSignature": "withdraw(address,uint256,address)",
+          "callType": "call",
+          "calls": 40,
+          "txs": 40,
+          "lastBlock": 20120438,
+          "lastTx": "0xba0876520x69328dec0000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0xba087652",
+          "targetSignature": "redeem(uint256,address,address)",
+          "destination": "0x9993dddddddddddddddddddddddddddddddddd",
+          "destinationLabel": "FeeSplitter",
+          "destinationSelector": "0x2e1a7d4d",
+          "destinationSignature": "split(uint256)",
+          "callType": "call",
+          "calls": 12,
+          "txs": 10,
+          "lastBlock": 20107247,
+          "lastTx": "0xba0876520x2e1a7d4d0000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x01e1d114",
+          "targetSignature": "totalAssets()",
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x70a08231",
+          "destinationSignature": "balanceOf(address)",
+          "callType": "staticcall",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0xc6e6f592",
+          "targetSignature": "convertToShares(uint256)",
+          "destination": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "destinationLabel": "PriceOracle",
+          "destinationSelector": "0x41976e09",
+          "destinationSignature": "getPrice(address)",
+          "callType": "staticcall",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x07a2d13a",
+          "targetSignature": "convertToAssets(uint256)",
+          "destination": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "destinationLabel": "PriceOracle",
+          "destinationSelector": "0x41976e09",
+          "destinationSignature": "getPrice(address)",
+          "callType": "staticcall",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x8980f11f",
+          "targetSignature": "rescueTokens(address,uint256)",
+          "destination": "0x6b175474e89094c44da98b954eedeac495271d0",
+          "destinationLabel": "DAI",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "callType": "call",
+          "calls": 1,
+          "txs": 1,
+          "lastBlock": 20108405,
+          "lastTx": "0x8980f11f0xa9059cbb0000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x8980f11f",
+          "targetSignature": "rescueTokens(address,uint256)",
+          "destination": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "destinationLabel": "WETH",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "callType": "call",
+          "calls": 1,
+          "txs": 1,
+          "lastBlock": 20090698,
+          "lastTx": "0x8980f11f0xa9059cbb0000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x8980f11f",
+          "targetSignature": "rescueTokens(address,uint256)",
+          "destination": "0xdac17f958d2ee523a2206206994597c13d831ec",
+          "destinationLabel": "USDT",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "callType": "call",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x8456cb59",
+          "targetSignature": "pause()",
+          "destination": "0x999b00000000000000000000000000000000ff",
+          "destinationLabel": "GuardianModule",
+          "destinationSelector": "0x9a2b1c3d",
+          "destinationSignature": "notifyPaused()",
+          "callType": "call",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x8c2a993e",
+          "targetSignature": "setFeeRecipient(address)",
+          "destination": "0x9993dddddddddddddddddddddddddddddddddd",
+          "destinationLabel": "FeeSplitter",
+          "destinationSelector": "0x2e1a7d4d",
+          "destinationSignature": "split(uint256)",
+          "callType": "call",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "destination": "0x999c00000000000000000000000000000000ab",
+          "destinationLabel": "SwapRouter",
+          "destinationSelector": "0x414bf389",
+          "destinationSignature": "swapExactIn(address,address,uint256,uint256)",
+          "callType": "call",
+          "calls": 0,
+          "txs": 0,
+          "possibleFromCode": true
+        },
+        {
+          "targetSelector": "0xb460af94",
+          "targetSignature": "withdraw(uint256,address,address)",
+          "destination": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "destinationLabel": "PriceOracle",
+          "destinationSelector": "0x41976e09",
+          "destinationSignature": "getPrice(address)",
+          "callType": "staticcall",
+          "calls": 40,
+          "txs": 40,
+          "lastBlock": 20116263,
+          "lastTx": "0xb460af940x41976e090000000000000000000000000000000000000000000000",
+          "possibleFromCode": true
+        }
+      ],
+      "contracts": [
+        {
+          "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "label": "USDC",
+          "calls": 280,
+          "txs": 273,
+          "functions": [
+            {
+              "selector": "0x23b872dd",
+              "signature": "transferFrom(address,address,uint256)",
+              "calls": 240
+            },
+            {
+              "selector": "0xa9059cbb",
+              "signature": "transfer(address,uint256)",
+              "calls": 40
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 240
+            },
+            {
+              "selector": "0x94bf804d",
+              "signature": "mint(uint256,address)",
+              "calls": 0
+            },
+            {
+              "selector": "0xb460af94",
+              "signature": "withdraw(uint256,address,address)",
+              "calls": 40
+            }
+          ]
+        },
+        {
+          "address": "0x3333333333333333333333333333333333cccc",
+          "label": "MoneyMarket",
+          "calls": 80,
+          "txs": 80,
+          "functions": [
+            {
+              "selector": "0x617ba037",
+              "signature": "supply(address,uint256,address,uint16)",
+              "calls": 0
+            },
+            {
+              "selector": "0x69328dec",
+              "signature": "withdraw(address,uint256,address)",
+              "calls": 80
+            },
+            {
+              "selector": "0x70a08231",
+              "signature": "balanceOf(address)",
+              "calls": 0
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 0
+            },
+            {
+              "selector": "0xb460af94",
+              "signature": "withdraw(uint256,address,address)",
+              "calls": 40
+            },
+            {
+              "selector": "0xba087652",
+              "signature": "redeem(uint256,address,address)",
+              "calls": 40
+            },
+            {
+              "selector": "0x01e1d114",
+              "signature": "totalAssets()",
+              "calls": 0
+            }
+          ]
+        },
+        {
+          "address": "0x9991bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "label": "RewardsDistributor",
+          "calls": 233,
+          "txs": 233,
+          "functions": [
+            {
+              "selector": "0x1d451647",
+              "signature": "notify(address,uint256)",
+              "calls": 233
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 233
+            }
+          ]
+        },
+        {
+          "address": "0x9993dddddddddddddddddddddddddddddddddd",
+          "label": "FeeSplitter",
+          "calls": 12,
+          "txs": 10,
+          "functions": [
+            {
+              "selector": "0x2e1a7d4d",
+              "signature": "split(uint256)",
+              "calls": 12
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0xba087652",
+              "signature": "redeem(uint256,address,address)",
+              "calls": 12
+            },
+            {
+              "selector": "0x8c2a993e",
+              "signature": "setFeeRecipient(address)",
+              "calls": 0
+            }
+          ]
+        },
+        {
+          "address": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "label": "PriceOracle",
+          "calls": 40,
+          "txs": 40,
+          "functions": [
+            {
+              "selector": "0x41976e09",
+              "signature": "getPrice(address)",
+              "calls": 40
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0xc6e6f592",
+              "signature": "convertToShares(uint256)",
+              "calls": 0
+            },
+            {
+              "selector": "0x07a2d13a",
+              "signature": "convertToAssets(uint256)",
+              "calls": 0
+            },
+            {
+              "selector": "0xb460af94",
+              "signature": "withdraw(uint256,address,address)",
+              "calls": 40
+            }
+          ]
+        },
+        {
+          "address": "0x6b175474e89094c44da98b954eedeac495271d0",
+          "label": "DAI",
+          "calls": 1,
+          "txs": 1,
+          "functions": [
+            {
+              "selector": "0xa9059cbb",
+              "signature": "transfer(address,uint256)",
+              "calls": 1
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x8980f11f",
+              "signature": "rescueTokens(address,uint256)",
+              "calls": 1
+            }
+          ]
+        },
+        {
+          "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "label": "WETH",
+          "calls": 1,
+          "txs": 1,
+          "functions": [
+            {
+              "selector": "0xa9059cbb",
+              "signature": "transfer(address,uint256)",
+              "calls": 1
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x8980f11f",
+              "signature": "rescueTokens(address,uint256)",
+              "calls": 1
+            }
+          ]
+        },
+        {
+          "address": "0xdac17f958d2ee523a2206206994597c13d831ec",
+          "label": "USDT",
+          "calls": 0,
+          "txs": 0,
+          "functions": [
+            {
+              "selector": "0xa9059cbb",
+              "signature": "transfer(address,uint256)",
+              "calls": 0
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x8980f11f",
+              "signature": "rescueTokens(address,uint256)",
+              "calls": 0
+            }
+          ]
+        },
+        {
+          "address": "0x999b00000000000000000000000000000000ff",
+          "label": "GuardianModule",
+          "calls": 0,
+          "txs": 0,
+          "functions": [
+            {
+              "selector": "0x9a2b1c3d",
+              "signature": "notifyPaused()",
+              "calls": 0
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x8456cb59",
+              "signature": "pause()",
+              "calls": 0
+            }
+          ]
+        },
+        {
+          "address": "0x999c00000000000000000000000000000000ab",
+          "label": "SwapRouter",
+          "calls": 0,
+          "txs": 0,
+          "functions": [
+            {
+              "selector": "0x414bf389",
+              "signature": "swapExactIn(address,address,uint256,uint256)",
+              "calls": 0
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 0
+            }
+          ]
+        }
+      ],
+      "totalCalls": 647
+    },
+    "inbound": {
+      "edges": [
+        {
+          "caller": "0x5555555555555555555555555555555555eeee",
+          "callerLabel": "ZapRouter",
+          "callerSelector": "0x1a2b3c4d",
+          "callerSignature": "zapDeposit(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 288,
+          "txs": 240,
+          "lastBlock": 20076693,
+          "lastTx": "0x5555555555555555555555555555555555eeee0x6e553f650000000000000000"
+        },
+        {
+          "caller": "0x6666666666666666666666666666666666ffff",
+          "callerLabel": "0x6666…ffff",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 5,
+          "txs": 5,
+          "lastBlock": 20112116,
+          "lastTx": "0x6666666666666666666666666666666666ffff0x6e553f650000000000000000"
+        },
+        {
+          "caller": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "callerLabel": "Compounder",
+          "callerSelector": "0x4641257d",
+          "callerSignature": "harvest()",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 60,
+          "txs": 60,
+          "lastBlock": 20091922,
+          "lastTx": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0x6e553f6500000000000000"
+        },
+        {
+          "caller": "0x999800000000000000000000000000000000cc",
+          "callerLabel": "PortfolioManager",
+          "callerSelector": "0xa2e12463",
+          "callerSignature": "rebalance(uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 22,
+          "txs": 20,
+          "lastBlock": 20116099,
+          "lastTx": "0x999800000000000000000000000000000000cc0x6e553f650000000000000000"
+        },
+        {
+          "caller": "0x999900000000000000000000000000000000dd",
+          "callerLabel": "SavingsRouter",
+          "callerSelector": "0x853828b6",
+          "callerSignature": "sweepInto(address)",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 18,
+          "txs": 15,
+          "lastBlock": 20121939,
+          "lastTx": "0x999900000000000000000000000000000000dd0x6e553f650000000000000000"
+        },
+        {
+          "caller": "0x7777777777777777777777777777777777aaaa",
+          "callerLabel": "YieldAggregator",
+          "callerSelector": "0x5f2a9c11",
+          "callerSignature": "harvestAndRedeem(uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xba087652",
+          "targetSignature": "redeem(uint256,address,address)",
+          "callType": "call",
+          "calls": 52,
+          "txs": 40,
+          "lastBlock": 20091402,
+          "lastTx": "0x7777777777777777777777777777777777aaaa0xba0876520000000000000000"
+        },
+        {
+          "caller": "0x9995ffffffffffffffffffffffffffffffffff",
+          "callerLabel": "MigratorV1",
+          "callerSelector": "0x2e1a7d4d",
+          "callerSignature": "migrateOut(address)",
+          "callerIsEoa": false,
+          "targetSelector": "0xba087652",
+          "targetSignature": "redeem(uint256,address,address)",
+          "callType": "call",
+          "calls": 9,
+          "txs": 9,
+          "lastBlock": 20090436,
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0xba0876520000000000000000"
+        },
+        {
+          "caller": "0x999800000000000000000000000000000000cc",
+          "callerLabel": "PortfolioManager",
+          "callerSelector": "0xa2e12463",
+          "callerSignature": "rebalance(uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xb460af94",
+          "targetSignature": "withdraw(uint256,address,address)",
+          "callType": "call",
+          "calls": 14,
+          "txs": 12,
+          "lastBlock": 20120964,
+          "lastTx": "0x999800000000000000000000000000000000cc0xb460af940000000000000000"
+        },
+        {
+          "caller": "0x999600000000000000000000000000000000aa",
+          "callerLabel": "MigratorV2",
+          "callerSelector": "0x1e83409a",
+          "callerSignature": "migrateIn(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xb460af94",
+          "targetSignature": "withdraw(uint256,address,address)",
+          "callType": "call",
+          "calls": 6,
+          "txs": 6,
+          "lastBlock": 20096687,
+          "lastTx": "0x999600000000000000000000000000000000aa0xb460af940000000000000000"
+        },
+        {
+          "caller": "0x8888888888888888888888888888888888aaaa",
+          "callerLabel": "GovernanceTimelock",
+          "callerSelector": "0x0825f38f",
+          "callerSignature": "execute(address,bytes)",
+          "callerIsEoa": false,
+          "targetSelector": "0x8c2a993e",
+          "targetSignature": "setFeeRecipient(address)",
+          "callType": "call",
+          "calls": 3,
+          "txs": 3,
+          "lastBlock": 20116216,
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8c2a993e0000000000000000"
+        },
+        {
+          "caller": "0x8888888888888888888888888888888888aaaa",
+          "callerLabel": "GovernanceTimelock",
+          "callerSelector": "0x0825f38f",
+          "callerSignature": "execute(address,bytes)",
+          "callerIsEoa": false,
+          "targetSelector": "0x8456cb59",
+          "targetSignature": "pause()",
+          "callType": "call",
+          "calls": 1,
+          "txs": 1,
+          "lastBlock": 20118433,
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8456cb590000000000000000"
+        },
+        {
+          "caller": "0x999a00000000000000000000000000000000ee",
+          "callerLabel": "DustSweeper",
+          "callerSelector": "0x12345678",
+          "callerSignature": "sweepDust(address,address)",
+          "callerIsEoa": false,
+          "targetSelector": "0x8980f11f",
+          "targetSignature": "rescueTokens(address,uint256)",
+          "callType": "call",
+          "calls": 2,
+          "txs": 2,
+          "lastBlock": 20105935,
+          "lastTx": "0x999a00000000000000000000000000000000ee0x8980f11f0000000000000000"
+        },
+        {
+          "caller": "0x999700000000000000000000000000000000bb",
+          "callerLabel": "ArbBot",
+          "callerSelector": "0x5cffe9de",
+          "callerSignature": "flashArb(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0x07a2d13a",
+          "targetSignature": "convertToAssets(uint256)",
+          "callType": "staticcall",
+          "calls": 140,
+          "txs": 90,
+          "lastBlock": 20079228,
+          "lastTx": "0x999700000000000000000000000000000000bb0x07a2d13a0000000000000000"
+        },
+        {
+          "caller": "0x9999999999999999999999999999999999e0a1",
+          "callerLabel": "EOA 0x9999…e0a1 (aggregated)",
+          "callerIsEoa": true,
+          "targetSelector": "0xa9059cbb",
+          "targetSignature": "transfer(address,uint256)",
+          "callType": "call",
+          "calls": 296,
+          "txs": 296,
+          "lastBlock": 20120764,
+          "lastTx": "0x9999999999999999999999999999999999e0a10xa9059cbb0000000000000000"
+        },
+        {
+          "caller": "0x9999999999999999999999999999999999e0a2",
+          "callerLabel": "EOA 0x9999…e0a2 (aggregated)",
+          "callerIsEoa": true,
+          "targetSelector": "0x095ea7b3",
+          "targetSignature": "approve(address,uint256)",
+          "callType": "call",
+          "calls": 44,
+          "txs": 44,
+          "lastBlock": 20084781,
+          "lastTx": "0x9999999999999999999999999999999999e0a20x095ea7b30000000000000000"
+        },
+        {
+          "caller": "0x999700000000000000000000000000000000bb",
+          "callerLabel": "ArbBot",
+          "callerSelector": "0x5cffe9de",
+          "callerSignature": "flashArb(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xc6e6f592",
+          "targetSignature": "convertToShares(uint256)",
+          "callType": "staticcall",
+          "calls": 133,
+          "txs": 88,
+          "lastBlock": 20103979,
+          "lastTx": "0x999700000000000000000000000000000000bb0xc6e6f5920000000000000000"
+        },
+        {
+          "caller": "0x9995ffffffffffffffffffffffffffffffffff",
+          "callerLabel": "MigratorV1",
+          "callerSelector": "0x1e83409a",
+          "callerSignature": "migrateOut(address)",
+          "callerIsEoa": false,
+          "targetSelector": "0x095ea7b3",
+          "targetSignature": "approve(address,uint256)",
+          "callType": "call",
+          "calls": 9,
+          "txs": 9,
+          "lastBlock": 20078814,
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0x095ea7b30000000000000000"
+        }
+      ],
+      "contracts": [
+        {
+          "address": "0x5555555555555555555555555555555555eeee",
+          "label": "ZapRouter",
+          "calls": 288,
+          "txs": 240,
+          "functions": [
+            {
+              "selector": "0x1a2b3c4d",
+              "signature": "zapDeposit(address,uint256)",
+              "calls": 288
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 288
+            }
+          ]
+        },
+        {
+          "address": "0x6666666666666666666666666666666666ffff",
+          "label": "0x6666…ffff",
+          "calls": 5,
+          "txs": 5,
+          "functions": [
+            {
+              "calls": 5
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 5
+            }
+          ]
+        },
+        {
+          "address": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "label": "Compounder",
+          "calls": 60,
+          "txs": 60,
+          "functions": [
+            {
+              "selector": "0x4641257d",
+              "signature": "harvest()",
+              "calls": 60
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 60
+            }
+          ]
+        },
+        {
+          "address": "0x999800000000000000000000000000000000cc",
+          "label": "PortfolioManager",
+          "calls": 36,
+          "txs": 32,
+          "functions": [
+            {
+              "selector": "0xa2e12463",
+              "signature": "rebalance(uint256)",
+              "calls": 36
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 22
+            },
+            {
+              "selector": "0xb460af94",
+              "signature": "withdraw(uint256,address,address)",
+              "calls": 14
+            }
+          ]
+        },
+        {
+          "address": "0x999900000000000000000000000000000000dd",
+          "label": "SavingsRouter",
+          "calls": 18,
+          "txs": 15,
+          "functions": [
+            {
+              "selector": "0x853828b6",
+              "signature": "sweepInto(address)",
+              "calls": 18
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x6e553f65",
+              "signature": "deposit(uint256,address)",
+              "calls": 18
+            }
+          ]
+        },
+        {
+          "address": "0x7777777777777777777777777777777777aaaa",
+          "label": "YieldAggregator",
+          "calls": 52,
+          "txs": 40,
+          "functions": [
+            {
+              "selector": "0x5f2a9c11",
+              "signature": "harvestAndRedeem(uint256)",
+              "calls": 52
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0xba087652",
+              "signature": "redeem(uint256,address,address)",
+              "calls": 52
+            }
+          ]
+        },
+        {
+          "address": "0x9995ffffffffffffffffffffffffffffffffff",
+          "label": "MigratorV1",
+          "calls": 18,
+          "txs": 18,
+          "functions": [
+            {
+              "selector": "0x2e1a7d4d",
+              "signature": "migrateOut(address)",
+              "calls": 9
+            },
+            {
+              "selector": "0x1e83409a",
+              "signature": "migrateOut(address)",
+              "calls": 9
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0xba087652",
+              "signature": "redeem(uint256,address,address)",
+              "calls": 9
+            },
+            {
+              "selector": "0x095ea7b3",
+              "signature": "approve(address,uint256)",
+              "calls": 9
+            }
+          ]
+        },
+        {
+          "address": "0x999600000000000000000000000000000000aa",
+          "label": "MigratorV2",
+          "calls": 6,
+          "txs": 6,
+          "functions": [
+            {
+              "selector": "0x1e83409a",
+              "signature": "migrateIn(address,uint256)",
+              "calls": 6
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0xb460af94",
+              "signature": "withdraw(uint256,address,address)",
+              "calls": 6
+            }
+          ]
+        },
+        {
+          "address": "0x8888888888888888888888888888888888aaaa",
+          "label": "GovernanceTimelock",
+          "calls": 4,
+          "txs": 4,
+          "functions": [
+            {
+              "selector": "0x0825f38f",
+              "signature": "execute(address,bytes)",
+              "calls": 4
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x8c2a993e",
+              "signature": "setFeeRecipient(address)",
+              "calls": 3
+            },
+            {
+              "selector": "0x8456cb59",
+              "signature": "pause()",
+              "calls": 1
+            }
+          ]
+        },
+        {
+          "address": "0x999a00000000000000000000000000000000ee",
+          "label": "DustSweeper",
+          "calls": 2,
+          "txs": 2,
+          "functions": [
+            {
+              "selector": "0x12345678",
+              "signature": "sweepDust(address,address)",
+              "calls": 2
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x8980f11f",
+              "signature": "rescueTokens(address,uint256)",
+              "calls": 2
+            }
+          ]
+        },
+        {
+          "address": "0x999700000000000000000000000000000000bb",
+          "label": "ArbBot",
+          "calls": 273,
+          "txs": 178,
+          "functions": [
+            {
+              "selector": "0x5cffe9de",
+              "signature": "flashArb(address,uint256)",
+              "calls": 273
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x07a2d13a",
+              "signature": "convertToAssets(uint256)",
+              "calls": 140
+            },
+            {
+              "selector": "0xc6e6f592",
+              "signature": "convertToShares(uint256)",
+              "calls": 133
+            }
+          ]
+        },
+        {
+          "address": "0x9999999999999999999999999999999999e0a1",
+          "label": "EOA 0x9999…e0a1 (aggregated)",
+          "calls": 296,
+          "txs": 296,
+          "functions": [
+            {
+              "calls": 296
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0xa9059cbb",
+              "signature": "transfer(address,uint256)",
+              "calls": 296
+            }
+          ]
+        },
+        {
+          "address": "0x9999999999999999999999999999999999e0a2",
+          "label": "EOA 0x9999…e0a2 (aggregated)",
+          "calls": 44,
+          "txs": 44,
+          "functions": [
+            {
+              "calls": 44
+            }
+          ],
+          "targetFunctions": [
+            {
+              "selector": "0x095ea7b3",
+              "signature": "approve(address,uint256)",
+              "calls": 44
+            }
+          ]
+        }
+      ],
+      "totalCalls": 1102
+    },
+    "targetFunctionCalls": [
+      {
+        "selector": "0x6e553f65",
+        "signature": "deposit(uint256,address)",
+        "calls": 393
+      },
+      {
+        "selector": "0xba087652",
+        "signature": "redeem(uint256,address,address)",
+        "calls": 61
+      },
+      {
+        "selector": "0xb460af94",
+        "signature": "withdraw(uint256,address,address)",
+        "calls": 20
+      },
+      {
+        "selector": "0x8c2a993e",
+        "signature": "setFeeRecipient(address)",
+        "calls": 3
+      },
+      {
+        "selector": "0x8456cb59",
+        "signature": "pause()",
+        "calls": 1
+      },
+      {
+        "selector": "0x8980f11f",
+        "signature": "rescueTokens(address,uint256)",
+        "calls": 2
+      },
+      {
+        "selector": "0x07a2d13a",
+        "signature": "convertToAssets(uint256)",
+        "calls": 140
+      },
+      {
+        "selector": "0xa9059cbb",
+        "signature": "transfer(address,uint256)",
+        "calls": 296
+      },
+      {
+        "selector": "0x095ea7b3",
+        "signature": "approve(address,uint256)",
+        "calls": 53
+      },
+      {
+        "selector": "0xc6e6f592",
+        "signature": "convertToShares(uint256)",
+        "calls": 133
+      }
+    ],
+    "delegatecalls": [
+      {
+        "destination": "0x2222222222222222222222222222222222bbbb",
+        "destinationLabel": "ExampleVaultV2 (implementation)",
+        "callType": "delegatecall",
+        "calls": 644,
+        "txs": 610,
+        "lastBlock": 20123456,
+        "lastTx": "0xdd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd44dd4",
+        "possibleFromCode": true
+      }
+    ],
+    "unresolvedSelectors": [
+      "0xdeadbeef"
+    ],
+    "warnings": [
+      "No traces are available before block 20073456 within the standard depth budget."
+    ]
+  },
+  "functions": [
+    {
+      "signature": "deposit(uint256,address)",
+      "selector": "0x6e553f65",
+      "name": "deposit",
+      "role": "deposit / asset movement",
+      "whatItDoes": "Pulls USDC from the caller, credits the receiver with newly minted vault shares, and forwards the assets to the money market. It reverts when the deposit would exceed the vault cap.",
+      "tree": {
+        "kind": "entry",
+        "label": "deposit(uint256,address)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 393,
+        "children": [
+          {
+            "kind": "internal",
+            "label": "_convertToShares()",
+            "detail": "Converts the deposited asset amount into a share amount at the current exchange rate.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 393,
+            "children": []
+          },
+          {
+            "kind": "internal",
+            "label": "_mint()",
+            "detail": "Mints the computed share amount to the receiver.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 393,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "USDC.transferFrom()",
+            "detail": "Pulls the deposited USDC from the caller into the vault.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 240,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "MoneyMarket.supply()",
+            "detail": "Forwards the deposited assets to the money market so the vault earns yield.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "RewardsDistributor.notify()",
+            "detail": "Records the deposit for referral reward accounting.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 233,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "SwapRouter.swapExactIn()",
+            "detail": "Would swap a residual dust amount left over from rounding. Not reachable in the sampled window.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Pulls USDC from the caller, credits the receiver with newly minted vault shares, and forwards the assets to the money market. It reverts when the deposit would exceed the vault cap.",
+        "It calls the internal function _convertToShares, which converts the deposited asset amount into a share amount at the current exchange rate.",
+        "It calls the internal function _mint, which mints the computed share amount to the receiver.",
+        "It calls USDC.transferFrom(). This step is observed onchain, 240 times in the traced window.",
+        "The code can call MoneyMarket.supply(), but no sampled transaction shows this step executing. Treat it as possible, not observed.",
+        "It calls RewardsDistributor.notify(). This step is observed onchain, 233 times in the traced window.",
+        "The code can call SwapRouter.swapExactIn(), but no sampled transaction shows this step executing. Treat it as possible, not observed."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "destinationLabel": "USDC",
+          "destinationSelector": "0x23b872dd",
+          "destinationSignature": "transferFrom(address,address,uint256)",
+          "functionLabel": "transferFrom()",
+          "callType": "call",
+          "reason": "Pulls the deposited USDC from the caller into the vault.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 240,
+          "observedTxs": 233,
+          "via": []
+        },
+        {
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x617ba037",
+          "destinationSignature": "supply(address,uint256,address,uint16)",
+          "functionLabel": "supply()",
+          "callType": "call",
+          "reason": "Forwards the deposited assets to the money market so the vault earns yield.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        },
+        {
+          "destination": "0x9991bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "destinationLabel": "RewardsDistributor",
+          "destinationSelector": "0x1d451647",
+          "destinationSignature": "notify(address,uint256)",
+          "functionLabel": "notify()",
+          "callType": "call",
+          "reason": "Records the deposit for referral reward accounting.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 233,
+          "observedTxs": 233,
+          "via": []
+        },
+        {
+          "destination": "0x999c00000000000000000000000000000000ab",
+          "destinationLabel": "SwapRouter",
+          "destinationSelector": "0x414bf389",
+          "destinationSignature": "swapExactIn(address,address,uint256,uint256)",
+          "functionLabel": "swapExactIn()",
+          "callType": "call",
+          "reason": "Would swap a residual dust amount left over from rounding. Not reachable in the sampled window.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 340,
+        "calls": 393
+      },
+      "inbound": [
+        {
+          "caller": "0x5555555555555555555555555555555555eeee",
+          "callerLabel": "ZapRouter",
+          "callerSelector": "0x1a2b3c4d",
+          "callerSignature": "zapDeposit(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 288,
+          "txs": 240,
+          "lastBlock": 20076693,
+          "lastTx": "0x5555555555555555555555555555555555eeee0x6e553f650000000000000000"
+        },
+        {
+          "caller": "0x6666666666666666666666666666666666ffff",
+          "callerLabel": "0x6666…ffff",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 5,
+          "txs": 5,
+          "lastBlock": 20112116,
+          "lastTx": "0x6666666666666666666666666666666666ffff0x6e553f650000000000000000"
+        },
+        {
+          "caller": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "callerLabel": "Compounder",
+          "callerSelector": "0x4641257d",
+          "callerSignature": "harvest()",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 60,
+          "txs": 60,
+          "lastBlock": 20091922,
+          "lastTx": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0x6e553f6500000000000000"
+        },
+        {
+          "caller": "0x999800000000000000000000000000000000cc",
+          "callerLabel": "PortfolioManager",
+          "callerSelector": "0xa2e12463",
+          "callerSignature": "rebalance(uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 22,
+          "txs": 20,
+          "lastBlock": 20116099,
+          "lastTx": "0x999800000000000000000000000000000000cc0x6e553f650000000000000000"
+        },
+        {
+          "caller": "0x999900000000000000000000000000000000dd",
+          "callerLabel": "SavingsRouter",
+          "callerSelector": "0x853828b6",
+          "callerSignature": "sweepInto(address)",
+          "callerIsEoa": false,
+          "targetSelector": "0x6e553f65",
+          "targetSignature": "deposit(uint256,address)",
+          "callType": "call",
+          "calls": 18,
+          "txs": 15,
+          "lastBlock": 20121939,
+          "lastTx": "0x999900000000000000000000000000000000dd0x6e553f650000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "mint(uint256,address)",
+      "selector": "0x94bf804d",
+      "name": "mint",
+      "role": "deposit / asset movement",
+      "whatItDoes": "Mints an exact number of shares to the receiver and pulls the equivalent USDC amount from the caller.",
+      "tree": {
+        "kind": "entry",
+        "label": "mint(uint256,address)",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": [
+          {
+            "kind": "internal",
+            "label": "_convertToAssets()",
+            "detail": "Converts the requested share amount into the asset amount owed.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "USDC.transferFrom()",
+            "detail": "Pulls the asset amount owed for the minted shares.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Mints an exact number of shares to the receiver and pulls the equivalent USDC amount from the caller.",
+        "It calls the internal function _convertToAssets, which converts the requested share amount into the asset amount owed.",
+        "The code can call USDC.transferFrom(), but no sampled transaction shows this step executing. Treat it as possible, not observed.",
+        "No sampled transaction exercises this function in the traced window."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "destinationLabel": "USDC",
+          "destinationSelector": "0x23b872dd",
+          "destinationSignature": "transferFrom(address,address,uint256)",
+          "functionLabel": "transferFrom()",
+          "callType": "call",
+          "reason": "Pulls the asset amount owed for the minted shares.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "withdraw(uint256,address,address)",
+      "selector": "0xb460af94",
+      "name": "withdraw",
+      "role": "withdrawal / asset movement",
+      "whatItDoes": "Burns the owner's shares, withdraws the equivalent USDC from the money market, and sends it to the receiver.",
+      "tree": {
+        "kind": "entry",
+        "label": "withdraw(uint256,address,address)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 20,
+        "children": [
+          {
+            "kind": "internal",
+            "label": "_convertToShares()",
+            "detail": "Converts the requested asset amount into the share amount to burn.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 20,
+            "children": []
+          },
+          {
+            "kind": "internal",
+            "label": "_burn()",
+            "detail": "Burns the owner's shares.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 20,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "MoneyMarket.withdraw()",
+            "detail": "Withdraws the asset amount from the money market to this vault.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 40,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "USDC.transfer()",
+            "detail": "Sends the withdrawn USDC to the receiver.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 40,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "PriceOracle.getPrice()",
+            "detail": "Reads the reference price to compute the withdrawal's asset value for the Withdraw event.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 40,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Burns the owner's shares, withdraws the equivalent USDC from the money market, and sends it to the receiver.",
+        "It calls the internal function _convertToShares, which converts the requested asset amount into the share amount to burn.",
+        "It calls the internal function _burn, which burns the owner's shares.",
+        "It calls MoneyMarket.withdraw(). This step is observed onchain, 40 times in the traced window.",
+        "It calls USDC.transfer(). This step is observed onchain, 40 times in the traced window.",
+        "It calls PriceOracle.getPrice(). This step is observed onchain, 40 times in the traced window."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x69328dec",
+          "destinationSignature": "withdraw(address,uint256,address)",
+          "functionLabel": "withdraw()",
+          "callType": "call",
+          "reason": "Withdraws the asset amount from the money market to this vault.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 40,
+          "observedTxs": 40,
+          "via": []
+        },
+        {
+          "destination": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "destinationLabel": "USDC",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "functionLabel": "transfer()",
+          "callType": "call",
+          "reason": "Sends the withdrawn USDC to the receiver.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 40,
+          "observedTxs": 40,
+          "via": []
+        },
+        {
+          "destination": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "destinationLabel": "PriceOracle",
+          "destinationSelector": "0x41976e09",
+          "destinationSignature": "getPrice(address)",
+          "functionLabel": "getPrice()",
+          "callType": "staticcall",
+          "reason": "Reads the reference price to compute the withdrawal's asset value for the Withdraw event.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 40,
+          "observedTxs": 40,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 18,
+        "calls": 20
+      },
+      "inbound": [
+        {
+          "caller": "0x999800000000000000000000000000000000cc",
+          "callerLabel": "PortfolioManager",
+          "callerSelector": "0xa2e12463",
+          "callerSignature": "rebalance(uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xb460af94",
+          "targetSignature": "withdraw(uint256,address,address)",
+          "callType": "call",
+          "calls": 14,
+          "txs": 12,
+          "lastBlock": 20120964,
+          "lastTx": "0x999800000000000000000000000000000000cc0xb460af940000000000000000"
+        },
+        {
+          "caller": "0x999600000000000000000000000000000000aa",
+          "callerLabel": "MigratorV2",
+          "callerSelector": "0x1e83409a",
+          "callerSignature": "migrateIn(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xb460af94",
+          "targetSignature": "withdraw(uint256,address,address)",
+          "callType": "call",
+          "calls": 6,
+          "txs": 6,
+          "lastBlock": 20096687,
+          "lastTx": "0x999600000000000000000000000000000000aa0xb460af940000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "redeem(uint256,address,address)",
+      "selector": "0xba087652",
+      "name": "redeem",
+      "role": "withdrawal / asset movement",
+      "whatItDoes": "Burns an exact number of the owner's shares and sends the equivalent USDC to the receiver.",
+      "tree": {
+        "kind": "entry",
+        "label": "redeem(uint256,address,address)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 61,
+        "children": [
+          {
+            "kind": "internal",
+            "label": "_convertToAssets()",
+            "detail": "Converts the redeemed share amount into the asset amount owed.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 61,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "MoneyMarket.withdraw()",
+            "detail": "Withdraws the asset amount owed from the money market.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 40,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "FeeSplitter.split()",
+            "detail": "Splits the performance fee taken on redemption.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 12,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Burns an exact number of the owner's shares and sends the equivalent USDC to the receiver.",
+        "It calls the internal function _convertToAssets, which converts the redeemed share amount into the asset amount owed.",
+        "It calls MoneyMarket.withdraw(). This step is observed onchain, 40 times in the traced window.",
+        "It calls FeeSplitter.split(). This step is observed onchain, 12 times in the traced window."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x69328dec",
+          "destinationSignature": "withdraw(address,uint256,address)",
+          "functionLabel": "withdraw()",
+          "callType": "call",
+          "reason": "Withdraws the asset amount owed from the money market.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 40,
+          "observedTxs": 40,
+          "via": []
+        },
+        {
+          "destination": "0x9993dddddddddddddddddddddddddddddddddd",
+          "destinationLabel": "FeeSplitter",
+          "destinationSelector": "0x2e1a7d4d",
+          "destinationSignature": "split(uint256)",
+          "functionLabel": "split()",
+          "callType": "call",
+          "reason": "Splits the performance fee taken on redemption.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 12,
+          "observedTxs": 10,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 49,
+        "calls": 61
+      },
+      "inbound": [
+        {
+          "caller": "0x7777777777777777777777777777777777aaaa",
+          "callerLabel": "YieldAggregator",
+          "callerSelector": "0x5f2a9c11",
+          "callerSignature": "harvestAndRedeem(uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xba087652",
+          "targetSignature": "redeem(uint256,address,address)",
+          "callType": "call",
+          "calls": 52,
+          "txs": 40,
+          "lastBlock": 20091402,
+          "lastTx": "0x7777777777777777777777777777777777aaaa0xba0876520000000000000000"
+        },
+        {
+          "caller": "0x9995ffffffffffffffffffffffffffffffffff",
+          "callerLabel": "MigratorV1",
+          "callerSelector": "0x2e1a7d4d",
+          "callerSignature": "migrateOut(address)",
+          "callerIsEoa": false,
+          "targetSelector": "0xba087652",
+          "targetSignature": "redeem(uint256,address,address)",
+          "callType": "call",
+          "calls": 9,
+          "txs": 9,
+          "lastBlock": 20090436,
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0xba0876520000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "transfer(address,uint256)",
+      "selector": "0xa9059cbb",
+      "name": "transfer",
+      "role": "share accounting",
+      "whatItDoes": "Moves vault shares from the caller to another account, following standard ERC20 accounting.",
+      "tree": {
+        "kind": "entry",
+        "label": "transfer(address,uint256)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 296,
+        "children": [
+          {
+            "kind": "internal",
+            "label": "_transfer()",
+            "detail": "Moves the balance between the two accounts and emits the Transfer event.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 296,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Moves vault shares from the caller to another account, following standard ERC20 accounting.",
+        "It calls the internal function _transfer, which moves the balance between the two accounts and emits the Transfer event.",
+        "No external contract is called."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 296,
+        "calls": 296
+      },
+      "inbound": [
+        {
+          "caller": "0x9999999999999999999999999999999999e0a1",
+          "callerLabel": "EOA 0x9999…e0a1 (aggregated)",
+          "callerIsEoa": true,
+          "targetSelector": "0xa9059cbb",
+          "targetSignature": "transfer(address,uint256)",
+          "callType": "call",
+          "calls": 296,
+          "txs": 296,
+          "lastBlock": 20120764,
+          "lastTx": "0x9999999999999999999999999999999999e0a10xa9059cbb0000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "transferFrom(address,address,uint256)",
+      "selector": "0x23b872dd",
+      "name": "transferFrom",
+      "role": "share accounting",
+      "whatItDoes": "Moves vault shares between two accounts using the caller's allowance from the owner.",
+      "tree": {
+        "kind": "entry",
+        "label": "transferFrom(address,address,uint256)",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": [
+          {
+            "kind": "internal",
+            "label": "_transfer()",
+            "detail": "Moves the balance between the two accounts.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Moves vault shares between two accounts using the caller's allowance from the owner.",
+        "It calls the internal function _transfer, which moves the balance between the two accounts.",
+        "No external contract is called.",
+        "No sampled transaction exercises this function in the traced window."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "approve(address,uint256)",
+      "selector": "0x095ea7b3",
+      "name": "approve",
+      "role": "share accounting",
+      "whatItDoes": "Sets the amount the spender may move on behalf of the caller.",
+      "tree": {
+        "kind": "entry",
+        "label": "approve(address,uint256)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 53,
+        "children": []
+      },
+      "narrative": [
+        "Sets the amount the spender may move on behalf of the caller.",
+        "No external contract is called."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 53,
+        "calls": 53
+      },
+      "inbound": [
+        {
+          "caller": "0x9999999999999999999999999999999999e0a2",
+          "callerLabel": "EOA 0x9999…e0a2 (aggregated)",
+          "callerIsEoa": true,
+          "targetSelector": "0x095ea7b3",
+          "targetSignature": "approve(address,uint256)",
+          "callType": "call",
+          "calls": 44,
+          "txs": 44,
+          "lastBlock": 20084781,
+          "lastTx": "0x9999999999999999999999999999999999e0a20x095ea7b30000000000000000"
+        },
+        {
+          "caller": "0x9995ffffffffffffffffffffffffffffffffff",
+          "callerLabel": "MigratorV1",
+          "callerSelector": "0x1e83409a",
+          "callerSignature": "migrateOut(address)",
+          "callerIsEoa": false,
+          "targetSelector": "0x095ea7b3",
+          "targetSignature": "approve(address,uint256)",
+          "callType": "call",
+          "calls": 9,
+          "txs": 9,
+          "lastBlock": 20078814,
+          "lastTx": "0x9995ffffffffffffffffffffffffffffffffff0x095ea7b30000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)",
+      "selector": "0xd505accf",
+      "name": "permit",
+      "role": "share accounting / gasless approval",
+      "whatItDoes": "Sets an allowance from a signed message instead of a direct transaction from the owner.",
+      "tree": {
+        "kind": "entry",
+        "label": "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "Sets an allowance from a signed message instead of a direct transaction from the owner.",
+        "No external contract is called.",
+        "No sampled transaction exercises this function in the traced window."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "totalAssets()",
+      "selector": "0x01e1d114",
+      "name": "totalAssets",
+      "role": "accounting / view",
+      "whatItDoes": "Returns the total USDC the vault currently controls, including assets deposited with the money market.",
+      "tree": {
+        "kind": "entry",
+        "label": "totalAssets()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": [
+          {
+            "kind": "external",
+            "label": "MoneyMarket.balanceOf()",
+            "detail": "Reads the vault's supplied balance at the money market.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Returns the total USDC the vault currently controls, including assets deposited with the money market.",
+        "The code can call MoneyMarket.balanceOf(), but no sampled transaction shows this step executing. Treat it as possible, not observed.",
+        "No sampled transaction exercises this function in the traced window."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x3333333333333333333333333333333333cccc",
+          "destinationLabel": "MoneyMarket",
+          "destinationSelector": "0x70a08231",
+          "destinationSignature": "balanceOf(address)",
+          "functionLabel": "balanceOf()",
+          "callType": "staticcall",
+          "reason": "Reads the vault's supplied balance at the money market.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "convertToShares(uint256)",
+      "selector": "0xc6e6f592",
+      "name": "convertToShares",
+      "role": "accounting / view",
+      "whatItDoes": "Reports how many shares a given amount of assets would buy at the current exchange rate.",
+      "tree": {
+        "kind": "entry",
+        "label": "convertToShares(uint256)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 133,
+        "children": [
+          {
+            "kind": "external",
+            "label": "PriceOracle.getPrice()",
+            "detail": "Reads the reference price used to compute the exchange rate.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Reports how many shares a given amount of assets would buy at the current exchange rate.",
+        "The code can call PriceOracle.getPrice(), but no sampled transaction shows this step executing. Treat it as possible, not observed."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "destinationLabel": "PriceOracle",
+          "destinationSelector": "0x41976e09",
+          "destinationSignature": "getPrice(address)",
+          "functionLabel": "getPrice()",
+          "callType": "staticcall",
+          "reason": "Reads the reference price used to compute the exchange rate.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 88,
+        "calls": 133
+      },
+      "inbound": [
+        {
+          "caller": "0x999700000000000000000000000000000000bb",
+          "callerLabel": "ArbBot",
+          "callerSelector": "0x5cffe9de",
+          "callerSignature": "flashArb(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0xc6e6f592",
+          "targetSignature": "convertToShares(uint256)",
+          "callType": "staticcall",
+          "calls": 133,
+          "txs": 88,
+          "lastBlock": 20103979,
+          "lastTx": "0x999700000000000000000000000000000000bb0xc6e6f5920000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "convertToAssets(uint256)",
+      "selector": "0x07a2d13a",
+      "name": "convertToAssets",
+      "role": "accounting / view",
+      "whatItDoes": "Reports how many assets a given amount of shares is worth at the current exchange rate.",
+      "tree": {
+        "kind": "entry",
+        "label": "convertToAssets(uint256)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 140,
+        "children": [
+          {
+            "kind": "external",
+            "label": "PriceOracle.getPrice()",
+            "detail": "Reads the reference price used to compute the exchange rate.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Reports how many assets a given amount of shares is worth at the current exchange rate.",
+        "The code can call PriceOracle.getPrice(), but no sampled transaction shows this step executing. Treat it as possible, not observed."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "destinationLabel": "PriceOracle",
+          "destinationSelector": "0x41976e09",
+          "destinationSignature": "getPrice(address)",
+          "functionLabel": "getPrice()",
+          "callType": "staticcall",
+          "reason": "Reads the reference price used to compute the exchange rate.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 90,
+        "calls": 140
+      },
+      "inbound": [
+        {
+          "caller": "0x999700000000000000000000000000000000bb",
+          "callerLabel": "ArbBot",
+          "callerSelector": "0x5cffe9de",
+          "callerSignature": "flashArb(address,uint256)",
+          "callerIsEoa": false,
+          "targetSelector": "0x07a2d13a",
+          "targetSignature": "convertToAssets(uint256)",
+          "callType": "staticcall",
+          "calls": 140,
+          "txs": 90,
+          "lastBlock": 20079228,
+          "lastTx": "0x999700000000000000000000000000000000bb0x07a2d13a0000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "setFeeRecipient(address)",
+      "selector": "0x8c2a993e",
+      "name": "setFeeRecipient",
+      "role": "governance / configuration",
+      "whatItDoes": "Changes the address that receives future performance fees.",
+      "tree": {
+        "kind": "entry",
+        "label": "setFeeRecipient(address)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 3,
+        "children": [
+          {
+            "kind": "external",
+            "label": "FeeSplitter.split()",
+            "detail": "Would re-point the fee splitter's beneficiary. Not reachable in the sampled window.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Changes the address that receives future performance fees.",
+        "The code can call FeeSplitter.split(), but no sampled transaction shows this step executing. Treat it as possible, not observed."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x9993dddddddddddddddddddddddddddddddddd",
+          "destinationLabel": "FeeSplitter",
+          "destinationSelector": "0x2e1a7d4d",
+          "destinationSignature": "split(uint256)",
+          "functionLabel": "split()",
+          "callType": "call",
+          "reason": "Would re-point the fee splitter's beneficiary. Not reachable in the sampled window.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 3,
+        "calls": 3
+      },
+      "inbound": [
+        {
+          "caller": "0x8888888888888888888888888888888888aaaa",
+          "callerLabel": "GovernanceTimelock",
+          "callerSelector": "0x0825f38f",
+          "callerSignature": "execute(address,bytes)",
+          "callerIsEoa": false,
+          "targetSelector": "0x8c2a993e",
+          "targetSignature": "setFeeRecipient(address)",
+          "callType": "call",
+          "calls": 3,
+          "txs": 3,
+          "lastBlock": 20116216,
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8c2a993e0000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "pause()",
+      "selector": "0x8456cb59",
+      "name": "pause",
+      "role": "governance / emergency control",
+      "whatItDoes": "Stops deposits, mints, withdrawals, and redemptions until the owner unpauses the vault.",
+      "tree": {
+        "kind": "entry",
+        "label": "pause()",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 1,
+        "children": [
+          {
+            "kind": "external",
+            "label": "GuardianModule.notifyPaused()",
+            "detail": "Tells the guardian module the vault has stopped accepting deposits.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Stops deposits, mints, withdrawals, and redemptions until the owner unpauses the vault.",
+        "The code can call GuardianModule.notifyPaused(), but no sampled transaction shows this step executing. Treat it as possible, not observed."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x999b00000000000000000000000000000000ff",
+          "destinationLabel": "GuardianModule",
+          "destinationSelector": "0x9a2b1c3d",
+          "destinationSignature": "notifyPaused()",
+          "functionLabel": "notifyPaused()",
+          "callType": "call",
+          "reason": "Tells the guardian module the vault has stopped accepting deposits.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 1,
+        "calls": 1
+      },
+      "inbound": [
+        {
+          "caller": "0x8888888888888888888888888888888888aaaa",
+          "callerLabel": "GovernanceTimelock",
+          "callerSelector": "0x0825f38f",
+          "callerSignature": "execute(address,bytes)",
+          "callerIsEoa": false,
+          "targetSelector": "0x8456cb59",
+          "targetSignature": "pause()",
+          "callType": "call",
+          "calls": 1,
+          "txs": 1,
+          "lastBlock": 20118433,
+          "lastTx": "0x8888888888888888888888888888888888aaaa0x8456cb590000000000000000"
+        }
+      ]
+    },
+    {
+      "signature": "rescueTokens(address,uint256)",
+      "selector": "0x8980f11f",
+      "name": "rescueTokens",
+      "role": "governance / recovery",
+      "whatItDoes": "Sends a stray ERC20 token balance held by the vault to the owner. It refuses to move the vault's own share token or the underlying asset.",
+      "tree": {
+        "kind": "entry",
+        "label": "rescueTokens(address,uint256)",
+        "possibleFromCode": true,
+        "observedOnchain": true,
+        "observedCalls": 2,
+        "children": [
+          {
+            "kind": "external",
+            "label": "DAI.transfer()",
+            "detail": "Sends the rescued token balance to the owner. The destination token is caller-supplied.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 1,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "WETH.transfer()",
+            "detail": "Sends the rescued token balance to the owner. The destination token is caller-supplied.",
+            "possibleFromCode": true,
+            "observedOnchain": true,
+            "observedCalls": 1,
+            "children": []
+          },
+          {
+            "kind": "external",
+            "label": "USDT.transfer()",
+            "detail": "Sends the rescued token balance to the owner. The destination token is caller-supplied.",
+            "possibleFromCode": true,
+            "observedOnchain": false,
+            "observedCalls": 0,
+            "children": []
+          }
+        ]
+      },
+      "narrative": [
+        "Sends a stray ERC20 token balance held by the vault to the owner. It refuses to move the vault's own share token or the underlying asset.",
+        "It calls DAI.transfer(). This step is observed onchain, 1 times in the traced window.",
+        "It calls WETH.transfer(). This step is observed onchain, 1 times in the traced window.",
+        "The code can call USDT.transfer(), but no sampled transaction shows this step executing. Treat it as possible, not observed."
+      ],
+      "externalCalls": [
+        {
+          "destination": "0x6b175474e89094c44da98b954eedeac495271d0",
+          "destinationLabel": "DAI",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "functionLabel": "transfer()",
+          "callType": "call",
+          "reason": "Sends the rescued token balance to the owner. The destination token is caller-supplied.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 1,
+          "observedTxs": 1,
+          "via": []
+        },
+        {
+          "destination": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "destinationLabel": "WETH",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "functionLabel": "transfer()",
+          "callType": "call",
+          "reason": "Sends the rescued token balance to the owner. The destination token is caller-supplied.",
+          "possibleFromCode": true,
+          "observedOnchain": true,
+          "observedCalls": 1,
+          "observedTxs": 1,
+          "via": []
+        },
+        {
+          "destination": "0xdac17f958d2ee523a2206206994597c13d831ec",
+          "destinationLabel": "USDT",
+          "destinationSelector": "0xa9059cbb",
+          "destinationSignature": "transfer(address,uint256)",
+          "functionLabel": "transfer()",
+          "callType": "call",
+          "reason": "Sends the rescued token balance to the owner. The destination token is caller-supplied.",
+          "possibleFromCode": true,
+          "observedOnchain": false,
+          "observedCalls": 0,
+          "observedTxs": 0,
+          "via": []
+        }
+      ],
+      "observed": {
+        "txs": 2,
+        "calls": 2
+      },
+      "inbound": [
+        {
+          "caller": "0x999a00000000000000000000000000000000ee",
+          "callerLabel": "DustSweeper",
+          "callerSelector": "0x12345678",
+          "callerSignature": "sweepDust(address,address)",
+          "callerIsEoa": false,
+          "targetSelector": "0x8980f11f",
+          "targetSignature": "rescueTokens(address,uint256)",
+          "callType": "call",
+          "calls": 2,
+          "txs": 2,
+          "lastBlock": 20105935,
+          "lastTx": "0x999a00000000000000000000000000000000ee0x8980f11f0000000000000000"
+        }
+      ]
+    }
+  ],
+  "review": {
+    "checks": [
+      {
+        "id": "proxy-implementation-verified",
+        "title": "Proxy implementation is verified",
+        "status": "ok",
+        "detail": "Blockscout reports full source verification for ExampleVaultV2 at the EIP-1967 implementation slot."
+      },
+      {
+        "id": "owner-is-timelock",
+        "title": "Owner is a governance timelock",
+        "status": "ok",
+        "detail": "onlyOwner functions are gated behind GovernanceTimelock, observed calling setFeeRecipient 3 times and pause once."
+      },
+      {
+        "id": "unresolved-selector",
+        "title": "One selector in bytecode is unresolved",
+        "status": "warn",
+        "detail": "Selector 0xdeadbeef appears in the runtime bytecode but matches no ABI entry and no signature database entry."
+      },
+      {
+        "id": "dynamic-rescue-destination",
+        "title": "rescueTokens targets a caller-supplied token",
+        "status": "warn",
+        "detail": "The token address rescued is an argument, not a fixed address. Confirm the owner is trusted before relying on this function."
+      },
+      {
+        "id": "sampled-window",
+        "title": "Runtime counts are a sample, not a lifetime total",
+        "status": "info",
+        "detail": "900 of 3120 candidate transactions were traced in a 50000-block window (about 6.9 days)."
+      },
+      {
+        "id": "no-reentrancy-guard-note",
+        "title": "No explicit reentrancy guard found on deposit/withdraw",
+        "status": "warn",
+        "detail": "Static analysis found no nonReentrant modifier on deposit, mint, withdraw, or redeem. External calls occur after state writes in deposit but before state writes in withdraw."
+      }
+    ]
+  },
+  "errors": [],
+  "chains": [
+    {
+      "id": 1,
+      "key": "ethereum",
+      "label": "Ethereum",
+      "alchemyHost": "eth-mainnet",
+      "blockscout": "https://eth.blockscout.com",
+      "traceFilter": true,
+      "debugTracer": true,
+      "blockTimeSec": 12,
+      "nativeSymbol": "ETH",
+      "sourcify": true
+    },
+    {
+      "id": 8453,
+      "key": "base",
+      "label": "Base",
+      "alchemyHost": "base-mainnet",
+      "blockscout": "https://base.blockscout.com",
+      "traceFilter": true,
+      "debugTracer": true,
+      "blockTimeSec": 2,
+      "nativeSymbol": "ETH",
+      "sourcify": true
+    },
+    {
+      "id": 10,
+      "key": "optimism",
+      "label": "Optimism",
+      "alchemyHost": "opt-mainnet",
+      "blockscout": "https://optimism.blockscout.com",
+      "traceFilter": true,
+      "debugTracer": true,
+      "blockTimeSec": 2,
+      "nativeSymbol": "ETH",
+      "sourcify": true
+    },
+    {
+      "id": 42161,
+      "key": "arbitrum",
+      "label": "Arbitrum One",
+      "alchemyHost": "arb-mainnet",
+      "blockscout": "https://arbitrum.blockscout.com",
+      "traceFilter": false,
+      "debugTracer": true,
+      "blockTimeSec": 0.25,
+      "nativeSymbol": "ETH",
+      "sourcify": true,
+      "probeNote": "trace_filter is not available on this chain, so candidates come from Blockscout."
+    },
+    {
+      "id": 137,
+      "key": "polygon",
+      "label": "Polygon",
+      "alchemyHost": "polygon-mainnet",
+      "blockscout": "https://polygon.blockscout.com",
+      "traceFilter": false,
+      "debugTracer": true,
+      "blockTimeSec": 2,
+      "nativeSymbol": "POL",
+      "sourcify": true,
+      "probeNote": "trace_filter stopped working after the Erigon to Bor migration, so candidates come from Blockscout."
+    },
+    {
+      "id": 56,
+      "key": "bsc",
+      "label": "BNB Smart Chain",
+      "alchemyHost": "bnb-mainnet",
+      "blockscout": "https://bscscan.com",
+      "traceFilter": true,
+      "debugTracer": true,
+      "blockTimeSec": 3,
+      "nativeSymbol": "BNB",
+      "sourcify": true
+    },
+    {
+      "id": 43114,
+      "key": "avalanche",
+      "label": "Avalanche C-Chain",
+      "alchemyHost": "avax-mainnet",
+      "blockscout": "https://snowtrace.io",
+      "traceFilter": false,
+      "debugTracer": true,
+      "blockTimeSec": 2,
+      "nativeSymbol": "AVAX",
+      "sourcify": true,
+      "probeNote": "trace_filter is not available on this chain, so candidates come from Blockscout."
+    },
+    {
+      "id": 250,
+      "key": "fantom",
+      "label": "Fantom Opera",
+      "alchemyHost": "fantom-mainnet",
+      "blockscout": "https://ftmscan.com",
+      "traceFilter": false,
+      "debugTracer": true,
+      "blockTimeSec": 1,
+      "nativeSymbol": "FTM",
+      "sourcify": true,
+      "probeNote": "trace_filter is not available on this chain, so candidates come from Blockscout."
+    },
+    {
+      "id": 100,
+      "key": "gnosis",
+      "label": "Gnosis Chain",
+      "alchemyHost": "gnosis-mainnet",
+      "blockscout": "https://gnosis.blockscout.com",
+      "traceFilter": true,
+      "debugTracer": true,
+      "blockTimeSec": 5,
+      "nativeSymbol": "xDAI",
+      "sourcify": true
+    },
+    {
+      "id": 59144,
+      "key": "linea",
+      "label": "Linea",
+      "alchemyHost": "linea-mainnet",
+      "blockscout": "https://lineascan.build",
+      "traceFilter": false,
+      "debugTracer": true,
+      "blockTimeSec": 2,
+      "nativeSymbol": "ETH",
+      "sourcify": true,
+      "probeNote": "trace_filter is not available on this chain, so candidates come from Blockscout."
+    },
+    {
+      "id": 534352,
+      "key": "scroll",
+      "label": "Scroll",
+      "alchemyHost": "scroll-mainnet",
+      "blockscout": "https://scroll.blockscout.com",
+      "traceFilter": true,
+      "debugTracer": true,
+      "blockTimeSec": 3,
+      "nativeSymbol": "ETH",
+      "sourcify": true
+    },
+    {
+      "id": 5000,
+      "key": "mantle",
+      "label": "Mantle",
+      "alchemyHost": "mantle-mainnet",
+      "blockscout": "https://explorer.mantle.xyz",
+      "traceFilter": false,
+      "debugTracer": true,
+      "blockTimeSec": 2,
+      "nativeSymbol": "MNT",
+      "sourcify": true,
+      "probeNote": "trace_filter is not available on this chain, so candidates come from Blockscout."
+    },
+    {
+      "id": 81457,
+      "key": "blast",
+      "label": "Blast",
+      "alchemyHost": "blast-mainnet",
+      "blockscout": "https://blastscan.io",
+      "traceFilter": true,
+      "debugTracer": true,
+      "blockTimeSec": 2,
+      "nativeSymbol": "ETH",
+      "sourcify": true
+    }
+  ]
+}

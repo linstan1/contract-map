@@ -1,0 +1,258 @@
+{
+  "meta": {
+    "address": "0x1234123412341234123412341234123412340f",
+    "chainId": 1,
+    "chainKey": "ethereum",
+    "chainLabel": "Ethereum",
+    "label": "VyperPool",
+    "analyzedAt": "2026-09-02T12:00:00.000Z",
+    "headBlock": 20123456,
+    "durationMs": 3100,
+    "depth": "quick",
+    "dataSources": [
+      "blockscout",
+      "trace_filter",
+      "debug_traceTransaction"
+    ]
+  },
+  "overview": {
+    "likelyType": "Vyper liquidity pool",
+    "verified": true,
+    "contractName": "Pool",
+    "proxy": {
+      "isProxy": false,
+      "detectedBy": "none"
+    },
+    "summary": "Pool is written in Vyper. It holds a single asset, mints shares on deposit, and burns them on withdrawal.",
+    "interfaces": [],
+    "stats": {
+      "exposedFunctions": 3,
+      "outboundContracts": 0,
+      "inboundContracts": 0,
+      "observedCalls": 0
+    }
+  },
+  "static": {
+    "verified": true,
+    "contractName": "Pool",
+    "compiler": "vyper:0.3.10",
+    "language": "Vyper",
+    "proxy": {
+      "isProxy": false,
+      "detectedBy": "none"
+    },
+    "likelyType": "Vyper liquidity pool",
+    "interfaces": [],
+    "inheritance": [],
+    "summary": "Pool is written in Vyper. It holds a single asset, mints shares on deposit, and burns them on withdrawal.",
+    "functions": [
+      {
+        "name": "deposit",
+        "signature": "deposit(uint256)",
+        "selector": "0xb6b55f25",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "modifiers": [],
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "deposit / asset movement",
+        "whatItDoes": "Pulls the deposit asset from the caller and mints pool shares in return.",
+        "declaredIn": "Pool",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false
+      },
+      {
+        "name": "withdraw",
+        "signature": "withdraw(uint256)",
+        "selector": "0x2e1a7d4d",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "modifiers": [],
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "withdraw / asset movement",
+        "whatItDoes": "Burns pool shares from the caller and returns the underlying asset.",
+        "declaredIn": "Pool",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false
+      },
+      {
+        "name": "totalSupply",
+        "signature": "totalSupply()",
+        "selector": "0x18160ddd",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "view",
+        "modifiers": [],
+        "access": {
+          "kind": "open",
+          "detail": "Any account may call this function.",
+          "gates": []
+        },
+        "role": "read-only accessor",
+        "whatItDoes": "Returns the total number of pool shares in circulation.",
+        "declaredIn": "Pool",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [],
+        "hasSource": true,
+        "overloaded": false
+      }
+    ],
+    "events": [],
+    "unresolvedSelectors": [],
+    "sourceFiles": [
+      "Pool.vy"
+    ],
+    "vyper": true,
+    "warnings": []
+  },
+  "runtime": {
+    "available": true,
+    "window": {
+      "fromBlock": 20122456,
+      "toBlock": 20123456,
+      "blocks": 1000,
+      "coveredBlocks": 1000,
+      "slices": [
+        {
+          "fromBlock": 20122456,
+          "toBlock": 20123456
+        }
+      ],
+      "strategy": "contiguous",
+      "approxDays": 0.14,
+      "coveredDays": 0.14,
+      "candidateTxs": 2,
+      "sampledTxs": 2,
+      "sampled": false,
+      "method": "trace_filter over one 1000-block window, then debug_traceTransaction on both candidates.",
+      "note": "Counts come from both candidate transactions found in the window. They are not lifetime totals."
+    },
+    "outbound": {
+      "edges": [],
+      "contracts": [],
+      "totalCalls": 0
+    },
+    "inbound": {
+      "edges": [],
+      "contracts": [],
+      "totalCalls": 0
+    },
+    "targetFunctionCalls": [],
+    "delegatecalls": [],
+    "unresolvedSelectors": [],
+    "warnings": []
+  },
+  "functions": [
+    {
+      "signature": "deposit(uint256)",
+      "selector": "0xb6b55f25",
+      "name": "deposit",
+      "role": "deposit / asset movement",
+      "whatItDoes": "Pulls the deposit asset from the caller and mints pool shares in return.",
+      "tree": {
+        "kind": "entry",
+        "label": "deposit()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "Pulls the deposit asset from the caller and mints pool shares in return."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "withdraw(uint256)",
+      "selector": "0x2e1a7d4d",
+      "name": "withdraw",
+      "role": "withdraw / asset movement",
+      "whatItDoes": "Burns pool shares from the caller and returns the underlying asset.",
+      "tree": {
+        "kind": "entry",
+        "label": "withdraw()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "Burns pool shares from the caller and returns the underlying asset."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "totalSupply()",
+      "selector": "0x18160ddd",
+      "name": "totalSupply",
+      "role": "read-only accessor",
+      "whatItDoes": "Returns the total number of pool shares in circulation.",
+      "tree": {
+        "kind": "entry",
+        "label": "totalSupply()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "Returns the total number of pool shares in circulation."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    }
+  ],
+  "review": {
+    "checks": [
+      {
+        "id": "language",
+        "title": "Vyper source",
+        "status": "info",
+        "detail": "Function bodies were analysed with Vyper rules, not Solidity rules."
+      }
+    ]
+  },
+  "errors": []
+}

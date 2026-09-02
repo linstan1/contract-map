@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Contract Map</title>
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- Entry screen: the one thing the user must understand at a glance. -->
+<section id="entry-screen" class="screen">
+  <div class="entry-card">
+    <h1 class="entry-title">Contract Map</h1>
+    <p class="entry-subtitle">Explain one EVM contract: what it does, what each function does, and who it calls or is called by.</p>
+
+    <div class="field">
+      <label for="address-input">Contract address</label>
+      <input id="address-input" type="text" placeholder="0x..." autocomplete="off" spellcheck="false" />
+      <div id="address-error" class="field-error"></div>
+    </div>
+
+    <div id="auth-status" class="auth-status" hidden>
+      <span>Signed in with an access token.</span>
+      <button id="sign-out-btn" class="ghost small" type="button">Sign out</button>
+    </div>
+
+    <div class="entry-row">
+      <div class="field">
+        <label for="chain-search">Chain</label>
+        <div class="combobox" id="chain-combobox">
+          <input id="chain-search" type="text" autocomplete="off" spellcheck="false" placeholder="Search chains…" />
+          <div id="chain-options" class="combobox-options" hidden></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="depth-select">Depth</label>
+        <select id="depth-select">
+          <option value="quick">Quick</option>
+          <option value="standard" selected>Standard</option>
+          <option value="deep">Deep</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="entry-actions">
+      <button id="analyze-btn" class="primary" type="button">Analyze</button>
+    </div>
+    <div class="entry-fixture-hint">Add <code class="mono">?fixture=1</code> to the page URL to load a sample result without a server call.</div>
+  </div>
+</section>
+
+<!-- Loading screen: a staged, honest progress report. -->
+<section id="loading-screen" class="screen" hidden>
+  <div class="loading-card">
+    <div id="loading-stage" class="loading-stage">Starting analysis…</div>
+    <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+    <div id="progress-pct" class="progress-pct">0%</div>
+    <div id="loading-log" class="loading-log"></div>
+  </div>
+</section>
+
+<!-- Error screen: a readable failure with the raw message. -->
+<section id="error-screen" class="screen" hidden>
+  <div class="error-card">
+    <p class="error-title">Analysis failed</p>
+    <div id="error-message" class="error-message"></div>
+    <div class="error-actions">
+      <button id="error-back-btn" type="button">Back</button>
+    </div>
+  </div>
+</section>
+
+<!-- Access token prompt: appears whenever an API answer reports status 401. -->
+<div id="auth-modal" class="modal-backdrop" hidden>
+  <div class="modal-card">
+    <p class="modal-title">Access token needed</p>
+    <p class="summary-text">This server needs a token for every API request. Enter it below to continue.</p>
+    <div class="field">
+      <label for="auth-token-input">Access token</label>
+      <input id="auth-token-input" type="password" autocomplete="off" spellcheck="false" />
+    </div>
+    <div id="auth-modal-error" class="field-error"></div>
+    <div class="entry-actions">
+      <button id="auth-cancel-btn" class="ghost" type="button">Cancel</button>
+      <button id="auth-submit-btn" class="primary" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main application: rendered once an AnalysisResult exists. -->
+<section id="app-screen" class="screen" hidden>
+  <div id="provenance-strip" class="provenance-strip"></div>
+
+  <div class="app-topbar">
+    <button class="tab active" data-view="overview" type="button">Overview</button>
+    <button class="tab" data-view="functions" type="button">Exposed functions</button>
+    <button class="tab" data-view="calls-from" type="button">Calls from this contract</button>
+    <button class="tab" data-view="calls-into" type="button">Calls into this contract</button>
+    <button class="tab" data-view="graph" type="button">Function graph</button>
+    <button id="new-analysis-btn" class="tab ghost prov-back" type="button">New analysis</button>
+  </div>
+
+  <div class="app-body">
+    <div id="view-overview" class="view"></div>
+    <div id="view-functions" class="view" hidden></div>
+    <div id="view-function-detail" class="view" hidden></div>
+    <div id="view-calls-from" class="view" hidden></div>
+    <div id="view-calls-into" class="view" hidden></div>
+    <div id="view-graph" class="view" hidden></div>
+
+    <div class="panel">
+      <div id="review-toggle" class="review-toggle">
+        <p class="panel-title" style="margin:0;">Review</p>
+        <span id="review-caret" class="mono">&#9656;</span>
+      </div>
+      <div id="review-body" class="review-checks" hidden></div>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

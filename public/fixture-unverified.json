@@ -1,0 +1,520 @@
+{
+  "meta": {
+    "address": "0x7777777777777777777777777777777777dead",
+    "chainId": 1,
+    "chainKey": "ethereum",
+    "chainLabel": "Ethereum",
+    "label": "0x7777…dead",
+    "analyzedAt": "2026-09-02T12:00:00.000Z",
+    "headBlock": 20123456,
+    "durationMs": 4210,
+    "depth": "quick",
+    "dataSources": [
+      "blockscout",
+      "bytecode-walk",
+      "trace_filter",
+      "debug_traceTransaction"
+    ]
+  },
+  "overview": {
+    "likelyType": "Unknown (unverified, ABI and bytecode only)",
+    "verified": false,
+    "proxy": {
+      "isProxy": false,
+      "detectedBy": "none"
+    },
+    "summary": "This contract has no verified source on Blockscout and no recovered bytecode twin. Every function below is named from its selector, and every behaviour claim comes from walking the compiled code, not from statements.",
+    "interfaces": [],
+    "stats": {
+      "exposedFunctions": 6,
+      "outboundContracts": 1,
+      "inboundContracts": 0,
+      "observedCalls": 0
+    }
+  },
+  "static": {
+    "verified": false,
+    "proxy": {
+      "isProxy": false,
+      "detectedBy": "none"
+    },
+    "likelyType": "Unknown (unverified, ABI and bytecode only)",
+    "interfaces": [],
+    "inheritance": [],
+    "summary": "This contract has no verified source on Blockscout and no recovered bytecode twin. Every function below is named from its selector, and every behaviour claim comes from walking the compiled code, not from statements.",
+    "functions": [
+      {
+        "name": "func_a9059cbb",
+        "signature": "transfer(address,uint256)",
+        "selector": "0xa9059cbb",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "modifiers": [],
+        "access": {
+          "kind": "unknown",
+          "detail": "Access could not be determined without source.",
+          "gates": []
+        },
+        "role": "possibly ERC20 transfer (selector match, no source)",
+        "whatItDoes": "The selector matches the standard transfer(address,uint256) signature. The compiled code writes storage and emits no call, consistent with a token balance update. No source confirms this.",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [
+          "This contract has no verified source. Every fact above comes from a walk of the compiled code."
+        ],
+        "hasSource": false,
+        "overloaded": false,
+        "bytecodeFacts": {
+          "readsStorage": true,
+          "writesStorage": true,
+          "makesCall": false,
+          "makesStaticcall": false,
+          "makesDelegatecall": false,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [],
+          "eventTopics": [],
+          "storageSlots": [
+            "0x0",
+            "0x1"
+          ],
+          "blocksWalked": 19,
+          "truncated": false
+        }
+      },
+      {
+        "name": "func_095ea7b3",
+        "signature": "approve(address,uint256)",
+        "selector": "0x095ea7b3",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "modifiers": [],
+        "access": {
+          "kind": "unknown",
+          "detail": "Access could not be determined without source.",
+          "gates": []
+        },
+        "role": "possibly ERC20 approve (selector match, no source)",
+        "whatItDoes": "The selector matches the standard approve(address,uint256) signature. The compiled code writes one storage slot and reads one, consistent with an allowance update.",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [
+          "This contract has no verified source. Every fact above comes from a walk of the compiled code."
+        ],
+        "hasSource": false,
+        "overloaded": false,
+        "bytecodeFacts": {
+          "readsStorage": true,
+          "writesStorage": true,
+          "makesCall": false,
+          "makesStaticcall": false,
+          "makesDelegatecall": false,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [],
+          "eventTopics": [],
+          "storageSlots": [
+            "0x2"
+          ],
+          "blocksWalked": 14,
+          "truncated": false
+        }
+      },
+      {
+        "name": "func_2e1a7d4d",
+        "signature": "withdraw(uint256)",
+        "selector": "0x2e1a7d4d",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "modifiers": [],
+        "access": {
+          "kind": "unknown",
+          "detail": "Access could not be determined without source.",
+          "gates": []
+        },
+        "role": "state-changing, makes an external call (selector match, no source)",
+        "whatItDoes": "The selector matches a common withdraw(uint256) signature. The compiled code reads and writes storage, then makes an external call to an address held in storage.",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [
+          "This contract has no verified source. Every fact above comes from a walk of the compiled code."
+        ],
+        "hasSource": false,
+        "overloaded": false,
+        "bytecodeFacts": {
+          "readsStorage": true,
+          "writesStorage": true,
+          "makesCall": true,
+          "makesStaticcall": false,
+          "makesDelegatecall": false,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [
+            "0x8888888888888888888888888888888888beef"
+          ],
+          "eventTopics": [],
+          "storageSlots": [
+            "0x0"
+          ],
+          "blocksWalked": 27,
+          "truncated": true
+        }
+      },
+      {
+        "name": "func_8da5cb5b",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "view",
+        "modifiers": [],
+        "access": {
+          "kind": "unknown",
+          "detail": "Access could not be determined without source.",
+          "gates": []
+        },
+        "role": "read-only accessor (selector match, no source)",
+        "whatItDoes": "The selector matches the common owner() accessor. The compiled code reads one storage slot and calls out nowhere.",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [
+          "This contract has no verified source. Every fact above comes from a walk of the compiled code."
+        ],
+        "hasSource": false,
+        "overloaded": false,
+        "bytecodeFacts": {
+          "readsStorage": true,
+          "writesStorage": false,
+          "makesCall": false,
+          "makesStaticcall": false,
+          "makesDelegatecall": false,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [],
+          "eventTopics": [],
+          "storageSlots": [
+            "0x0"
+          ],
+          "blocksWalked": 3,
+          "truncated": false
+        }
+      },
+      {
+        "name": "func_3644e515",
+        "signature": "DOMAIN_SEPARATOR()",
+        "selector": "0x3644e515",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "view",
+        "modifiers": [],
+        "access": {
+          "kind": "unknown",
+          "detail": "Access could not be determined without source.",
+          "gates": []
+        },
+        "role": "read-only, unresolved body (selector match, no source)",
+        "whatItDoes": "The selector matches DOMAIN_SEPARATOR(). The dispatcher branch could not be walked to a fixed point before the block cap, so few facts are proven.",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [
+          "This contract has no verified source. Every fact above comes from a walk of the compiled code."
+        ],
+        "hasSource": false,
+        "overloaded": false,
+        "bytecodeFacts": {
+          "readsStorage": true,
+          "writesStorage": false,
+          "makesCall": false,
+          "makesStaticcall": false,
+          "makesDelegatecall": false,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [],
+          "eventTopics": [],
+          "storageSlots": [],
+          "blocksWalked": 60,
+          "truncated": true
+        }
+      },
+      {
+        "name": "func_f2fde38b",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b",
+        "params": [],
+        "outputs": [],
+        "visibility": "external",
+        "mutability": "nonpayable",
+        "modifiers": [],
+        "access": {
+          "kind": "unknown",
+          "detail": "Access could not be determined without source.",
+          "gates": []
+        },
+        "role": "state-changing, delegatecalls out (selector match, no source)",
+        "whatItDoes": "The selector matches transferOwnership(address). The compiled code writes storage and delegatecalls a fixed address, a pattern seen in upgradeable proxies.",
+        "reads": [],
+        "writes": [],
+        "internalCalls": [],
+        "externalCalls": [],
+        "events": [],
+        "notes": [
+          "This contract has no verified source. Every fact above comes from a walk of the compiled code."
+        ],
+        "hasSource": false,
+        "overloaded": false,
+        "bytecodeFacts": {
+          "readsStorage": false,
+          "writesStorage": true,
+          "makesCall": false,
+          "makesStaticcall": false,
+          "makesDelegatecall": true,
+          "createsContract": false,
+          "selfDestructs": false,
+          "addressConstants": [
+            "0x8888888888888888888888888888888888beef"
+          ],
+          "eventTopics": [],
+          "storageSlots": [
+            "0x0"
+          ],
+          "blocksWalked": 21,
+          "truncated": false
+        }
+      }
+    ],
+    "events": [],
+    "unresolvedSelectors": [],
+    "sourceFiles": [],
+    "warnings": [
+      "The contract is not verified. Function names, parameters, and behaviour are inferred from selectors and compiled code, not from source."
+    ]
+  },
+  "runtime": {
+    "available": true,
+    "window": {
+      "fromBlock": 20122456,
+      "toBlock": 20123456,
+      "blocks": 1000,
+      "coveredBlocks": 1000,
+      "slices": [
+        {
+          "fromBlock": 20122456,
+          "toBlock": 20123456
+        }
+      ],
+      "strategy": "contiguous",
+      "approxDays": 0.14,
+      "coveredDays": 0.14,
+      "candidateTxs": 6,
+      "sampledTxs": 6,
+      "sampled": false,
+      "method": "trace_filter over one 1000-block window, then debug_traceTransaction on all 6 candidates.",
+      "note": "Counts come from all 6 candidate transactions found in the window. They are not lifetime totals."
+    },
+    "outbound": {
+      "edges": [],
+      "contracts": [
+        {
+          "address": "0x8888888888888888888888888888888888beef",
+          "label": "0x8888…beef",
+          "calls": 4,
+          "txs": 4,
+          "functions": [],
+          "targetFunctions": []
+        }
+      ],
+      "totalCalls": 0
+    },
+    "inbound": {
+      "edges": [],
+      "contracts": [],
+      "totalCalls": 0
+    },
+    "targetFunctionCalls": [],
+    "delegatecalls": [],
+    "unresolvedSelectors": [],
+    "warnings": [
+      "No verified source exists for this contract, so runtime calls could not be matched to statements."
+    ]
+  },
+  "functions": [
+    {
+      "signature": "transfer(address,uint256)",
+      "selector": "0xa9059cbb",
+      "name": "func_a9059cbb",
+      "role": "possibly ERC20 transfer (selector match, no source)",
+      "whatItDoes": "The selector matches the standard transfer(address,uint256) signature. The compiled code writes storage and emits no call, consistent with a token balance update. No source confirms this.",
+      "tree": {
+        "kind": "entry",
+        "label": "func_a9059cbb()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "No source is available, so no statement-level narrative can be built."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "approve(address,uint256)",
+      "selector": "0x095ea7b3",
+      "name": "func_095ea7b3",
+      "role": "possibly ERC20 approve (selector match, no source)",
+      "whatItDoes": "The selector matches the standard approve(address,uint256) signature. The compiled code writes one storage slot and reads one, consistent with an allowance update.",
+      "tree": {
+        "kind": "entry",
+        "label": "func_095ea7b3()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "No source is available, so no statement-level narrative can be built."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "withdraw(uint256)",
+      "selector": "0x2e1a7d4d",
+      "name": "func_2e1a7d4d",
+      "role": "state-changing, makes an external call (selector match, no source)",
+      "whatItDoes": "The selector matches a common withdraw(uint256) signature. The compiled code reads and writes storage, then makes an external call to an address held in storage.",
+      "tree": {
+        "kind": "entry",
+        "label": "func_2e1a7d4d()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "No source is available, so no statement-level narrative can be built."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "owner()",
+      "selector": "0x8da5cb5b",
+      "name": "func_8da5cb5b",
+      "role": "read-only accessor (selector match, no source)",
+      "whatItDoes": "The selector matches the common owner() accessor. The compiled code reads one storage slot and calls out nowhere.",
+      "tree": {
+        "kind": "entry",
+        "label": "func_8da5cb5b()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "No source is available, so no statement-level narrative can be built."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "DOMAIN_SEPARATOR()",
+      "selector": "0x3644e515",
+      "name": "func_3644e515",
+      "role": "read-only, unresolved body (selector match, no source)",
+      "whatItDoes": "The selector matches DOMAIN_SEPARATOR(). The dispatcher branch could not be walked to a fixed point before the block cap, so few facts are proven.",
+      "tree": {
+        "kind": "entry",
+        "label": "func_3644e515()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "No source is available, so no statement-level narrative can be built."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    },
+    {
+      "signature": "transferOwnership(address)",
+      "selector": "0xf2fde38b",
+      "name": "func_f2fde38b",
+      "role": "state-changing, delegatecalls out (selector match, no source)",
+      "whatItDoes": "The selector matches transferOwnership(address). The compiled code writes storage and delegatecalls a fixed address, a pattern seen in upgradeable proxies.",
+      "tree": {
+        "kind": "entry",
+        "label": "func_f2fde38b()",
+        "possibleFromCode": true,
+        "observedOnchain": false,
+        "observedCalls": 0,
+        "children": []
+      },
+      "narrative": [
+        "No source is available, so no statement-level narrative can be built."
+      ],
+      "externalCalls": [],
+      "observed": {
+        "txs": 0,
+        "calls": 0
+      },
+      "inbound": []
+    }
+  ],
+  "review": {
+    "checks": [
+      {
+        "id": "verification",
+        "title": "Contract is not verified",
+        "status": "warn",
+        "detail": "No source was found on Blockscout and no bytecode twin was found. Read every claim as inferred from compiled code."
+      }
+    ]
+  },
+  "errors": []
+}
