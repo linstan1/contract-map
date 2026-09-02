@@ -4,7 +4,7 @@
  * This script decides, per candidate chain, whether the pipeline can serve
  * it. It answers four questions with a real network call, not a document:
  *
- *   1. Does the shared Alchemy key reach this chain at all?
+ *   1. Does the configured endpoint reach this chain at all?
  *   2. How long is a real block, measured from two blocks 1000 apart?
  *   3. Does `trace_filter` answer over a small range?
  *   4. Does `debug_traceTransaction` with `callTracer` answer on a real tx?
@@ -14,16 +14,21 @@
  * chain id. Run it with `bun run scripts/probe-chains.ts`. It prints a
  * table and writes the same table to `local://chain-probe.md`.
  *
+ * The probe uses the same endpoint resolution as the application, so a
+ * `RPC_URL` or `RPC_URL_<CHAIN>` value is probed instead of Alchemy. The
+ * answers describe the provider you configured, and a different provider
+ * MUST be probed again, because the trace support differs.
+ *
  * The probe runs one chain at a time with a pause between chains, so the
- * shared Alchemy key does not trip a rate limit while every other user of
- * the key is still working.
+ * endpoint does not trip a rate limit while every other user of the same
+ * credential is still working.
  */
 
-import { alchemyKey, findAlchemyKey, MISSING_KEY_MESSAGE } from "../src/config";
+import { alchemyKey, findCustomRpcUrl, hasRpcEndpoint, MISSING_ENDPOINT_MESSAGE } from "../src/config";
 
-/* The probe spends real requests, so it needs the operator's own key. */
-if (!findAlchemyKey()) {
-  console.error(MISSING_KEY_MESSAGE);
+/* The probe spends real requests, so it needs the operator's own endpoint. */
+if (!hasRpcEndpoint()) {
+  console.error(MISSING_ENDPOINT_MESSAGE);
   process.exit(1);
 }
 
@@ -195,7 +200,7 @@ async function probeChain(
   blockscoutRegistry: Map<number, string[]>,
   sourcifyChains: Set<number>,
 ): Promise<ProbeResult> {
-  const url = `https://${candidate.alchemyHost}.g.alchemy.com/v2/${alchemyKey()}`;
+  const url = findCustomRpcUrl(candidate) ?? `https://${candidate.alchemyHost}.g.alchemy.com/v2/${alchemyKey()}`;
 
   const headNow = await rpcCall(url, "eth_blockNumber", []);
   if (headNow.errorText || typeof headNow.result !== "string") {

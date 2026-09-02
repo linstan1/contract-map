@@ -1,5 +1,5 @@
 /**
- * Runtime configuration: the RPC key, the depth budgets, and the stage
+ * Runtime configuration: the RPC endpoint, the depth budgets, and the stage
  * ceilings. The chain registry lives in `src/chains.ts` and is re-exported
  * here so existing imports keep working.
  */
@@ -48,57 +48,203 @@ export const STAGE_BUDGET_MS: Record<Depth, number> = {
 };
 
 /**
- * Every user supplies their own RPC key.
+ * Every user supplies their own RPC endpoint.
  *
- * The repository ships NO key and NO default. `.env.local` is ignored by git,
- * so a key stays on the machine that created it and is never inherited by a
- * clone or a fork. `scripts/check-secrets.ts` enforces that, and the CI
- * workflow runs it on every push.
+ * The repository ships NO key, NO URL and NO default host. `.env.local` is
+ * ignored by git, so a credential stays on the machine that created it and is
+ * never inherited by a clone or a fork. `scripts/check-secrets.ts` enforces
+ * that, and the CI workflow runs it on every push.
  *
- * Resolution order: the `ALCHEMY_API_KEY` environment variable, then
- * `.env.local` beside `package.json`.
+ * Two ways to configure an endpoint exist, and the first match wins:
+ *
+ *   1. A full URL for any provider. `RPC_URL_<CHAIN>` sets one chain, for
+ *      example `RPC_URL_ETHEREUM`. `RPC_URL` sets every chain that has no
+ *      per-chain entry.
+ *   2. `ALCHEMY_API_KEY`. The code then builds the Alchemy URL from
+ *      `chain.alchemyHost`.
+ *
+ * Each value comes from the environment first, then from `.env.local` beside
+ * `package.json`.
  */
-let cachedKey: string | undefined;
 
-/** Values people paste from documentation instead of a real key. */
-const PLACEHOLDERS = new Set(["your_key_here", "your-key-here", "changeme", "todo", "xxx", "<key>", "alchemy_api_key"]);
+/** Values people paste from documentation instead of a real credential. */
+const PLACEHOLDERS = new Set([
+  "your_key_here",
+  "your-key-here",
+  "changeme",
+  "todo",
+  "xxx",
+  "<key>",
+  "alchemy_api_key",
+  "your_rpc_url_here",
+  "https://",
+  "<url>",
+]);
 
-function readKeyFile(): string | undefined {
+let cachedEnvFile: Map<string, string> | undefined;
+
+/** `.env.local` as a name to value map. An absent or unreadable file gives an empty map. */
+function envFile(): Map<string, string> {
+  if (cachedEnvFile) return cachedEnvFile;
+  const entries = new Map<string, string>();
   try {
     const text = readFileSync(new URL("../.env.local", import.meta.url), "utf8");
-    const line = text.split(/\r?\n/).find((l) => l.trim().startsWith("ALCHEMY_API_KEY="));
-    return line?.slice(line.indexOf("=") + 1).trim().replace(/^["']|["']$/g, "");
+    for (const line of text.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq < 1) continue;
+      const name = trimmed.slice(0, eq).trim();
+      const value = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
+      if (value) entries.set(name, value);
+    }
   } catch {
-    return undefined;
+    /* No file on this machine. The environment is then the only source. */
   }
+  cachedEnvFile = entries;
+  return entries;
 }
 
-/** The configured key, or `undefined` when this machine has none. */
-export function findAlchemyKey(): string | undefined {
-  if (cachedKey) return cachedKey;
-  const candidate = (process.env.ALCHEMY_API_KEY ?? "").trim() || readKeyFile();
+/** Forget the parsed `.env.local`, so a later read sees a changed file. */
+export function resetConfigCache(): void {
+  cachedEnvFile = undefined;
+}
+
+/**
+ * A source of configured values.
+ *
+ * `names()` lists every name it holds, and `get()` reads one value. The
+ * process source reads the environment first, then `.env.local`. A test
+ * passes its own source, so no test depends on the file of the machine that
+ * runs it.
+ */
+export interface Settings {
+  names(): string[];
+  get(name: string): string | undefined;
+}
+
+/** A source over a plain name to value map, for tests and for callers with their own values. */
+export function settingsFrom(entries: Record<string, string>): Settings {
+  return {
+    names: () => Object.keys(entries),
+    get: (name) => usable(entries[name]),
+  };
+}
+
+/** The value, or `undefined` when it is empty or a documentation placeholder. */
+function usable(raw: string | undefined): string | undefined {
+  const candidate = (raw ?? "").trim();
   if (!candidate || PLACEHOLDERS.has(candidate.toLowerCase())) return undefined;
-  cachedKey = candidate;
   return candidate;
 }
 
-/** The message shown to anyone who runs this without a key of their own. */
-export const MISSING_KEY_MESSAGE = [
-  "No RPC key is configured, and this project ships none.",
-  "Get your own key from https://alchemy.com, then either:",
-  "  1. copy .env.example to .env.local and set ALCHEMY_API_KEY, or",
-  "  2. export ALCHEMY_API_KEY in your shell.",
-  "The key stays on this machine. It is never committed, and .env.local is ignored by git.",
+/** The real source: the environment of this process, then `.env.local`. */
+export const processSettings: Settings = {
+  names: () => [...new Set([...Object.keys(process.env), ...envFile().keys()])],
+  get: (name) => usable(process.env[name]) ?? usable(envFile().get(name)),
+};
+
+/** The per-chain variable name for one chain, for example `RPC_URL_ARBITRUM_ONE`. */
+export function rpcUrlVar(chain: Pick<ChainConfig, "key">): string {
+  return `RPC_URL_${chain.key.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+}
+
+/** The configured key, or `undefined` when this machine has none. */
+export function findAlchemyKey(settings: Settings = processSettings): string | undefined {
+  return settings.get("ALCHEMY_API_KEY");
+}
+
+/** The custom endpoint for one chain, or `undefined` when the Alchemy default applies. */
+export function findCustomRpcUrl(chain: Pick<ChainConfig, "key">, settings: Settings = processSettings): string | undefined {
+  return settings.get(rpcUrlVar(chain)) ?? settings.get("RPC_URL");
+}
+
+/** `true` when at least one endpoint is configured, so a startup guard can stop early. */
+export function hasRpcEndpoint(settings: Settings = processSettings): boolean {
+  if (findAlchemyKey(settings)) return true;
+  return settings.names().some((name) => (name === "RPC_URL" || name.startsWith("RPC_URL_")) && settings.get(name));
+}
+
+/** The message shown to anyone who runs this without an endpoint of their own. */
+export const MISSING_ENDPOINT_MESSAGE = [
+  "No RPC endpoint is configured, and this project ships none.",
+  "Pick one of these, in .env.local beside package.json or in your shell:",
+  "  1. RPC_URL=<full JSON-RPC URL>          any provider, every chain",
+  "  2. RPC_URL_ETHEREUM=<full URL>          one chain only, one variable per chain",
+  "  3. ALCHEMY_API_KEY=<your key>           the code then builds the Alchemy URL",
+  "Observed execution and the proof links need trace_filter and trace_transaction,",
+  "or debug_traceTransaction with the callTracer. A provider without them still",
+  "answers the static half: bytecode, source, proxy and possible call paths.",
+  "The value stays on this machine. It is never committed, and .env.local is ignored by git.",
 ].join("\n");
 
-export function alchemyKey(): string {
-  const key = findAlchemyKey();
-  if (!key) throw new Error(MISSING_KEY_MESSAGE);
+export function alchemyKey(settings: Settings = processSettings): string {
+  const key = findAlchemyKey(settings);
+  if (!key) throw new Error(MISSING_ENDPOINT_MESSAGE);
   return key;
 }
 
-export function rpcUrl(chain: ChainConfig): string {
-  return `https://${chain.alchemyHost}.g.alchemy.com/v2/${alchemyKey()}`;
+/**
+ * The JSON-RPC endpoint for one chain.
+ *
+ * Throws `MISSING_ENDPOINT_MESSAGE` when neither a URL nor a key exists for
+ * this chain, because that is a configuration fault and no retry fixes it.
+ */
+export function rpcUrl(chain: ChainConfig, settings: Settings = processSettings): string {
+  const custom = findCustomRpcUrl(chain, settings);
+  if (custom) return custom;
+  return `https://${chain.alchemyHost}.g.alchemy.com/v2/${alchemyKey(settings)}`;
+}
+
+/**
+ * A provider name for the data-source list, with no credential in it.
+ *
+ * A custom URL keeps its host and drops the path, because a provider key
+ * usually sits in the path or in the query.
+ */
+export function rpcProviderLabel(chain: ChainConfig, settings: Settings = processSettings): string {
+  const custom = findCustomRpcUrl(chain, settings);
+  if (!custom) return `Alchemy ${chain.alchemyHost}`;
+  try {
+    return `RPC ${new URL(custom).host}`;
+  } catch {
+    return "RPC custom endpoint";
+  }
+}
+
+/**
+ * Every string that MUST NOT leave this process.
+ *
+ * A failed `fetch` puts the endpoint URL in its message, and that message
+ * reaches the browser and the log. The Alchemy key is one such string. A
+ * custom URL carries its credential in the path or the query, so the whole
+ * URL, each long path segment, each long query value and the userinfo
+ * password join the list.
+ */
+export function rpcSecrets(settings: Settings = processSettings): string[] {
+  const secrets = new Set<string>();
+  const key = findAlchemyKey(settings);
+  if (key) secrets.add(key);
+  for (const name of settings.names()) {
+    if (name !== "RPC_URL" && !name.startsWith("RPC_URL_")) continue;
+    const url = settings.get(name);
+    if (!url) continue;
+    secrets.add(url);
+    try {
+      const parsed = new URL(url);
+      for (const segment of parsed.pathname.split("/")) {
+        if (segment.length >= 8) secrets.add(segment);
+      }
+      for (const value of parsed.searchParams.values()) {
+        if (value.length >= 8) secrets.add(value);
+      }
+      if (parsed.password) secrets.add(parsed.password);
+    } catch {
+      /* Not a parseable URL. The whole value is already on the list. */
+    }
+  }
+  /* Longest first, so a nested value never leaves a fragment of a longer one. */
+  return [...secrets].sort((a, b) => b.length - a.length);
 }
 
 /** Signature databases used when an ABI does not explain a selector. */

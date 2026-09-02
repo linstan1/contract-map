@@ -155,7 +155,10 @@ These are worth a test each, because breaking them is invisible in the output.
 5. `possibleFromCode` and `observedOnchain` are never derived from each other.
 6. A signature from a database re-hashes to the selector it is printed against.
 7. `TraceWindow.coveredBlocks` never exceeds `blocks`, and `slices` sum to it.
-8. No error message that leaves the process contains the RPC key.
+8. No error message that leaves the process contains an RPC credential: not the
+   Alchemy key, not a custom endpoint URL, and not a credential inside that URL.
+9. The trace method follows the endpoint that answers, not the chain registry.
+   Each switch is stated in `TraceWindow.method` and in the warnings.
 
 ---
 
@@ -225,7 +228,9 @@ Environment:
 
 | Variable | Default | Effect |
 |---|---|---|
-| `ALCHEMY_API_KEY` | from `.env.local` | required |
+| `RPC_URL` | unset | full JSON-RPC URL for every chain, any provider |
+| `RPC_URL_<CHAIN>` | unset | full URL for one chain, for example `RPC_URL_ETHEREUM`; wins over `RPC_URL` |
+| `ALCHEMY_API_KEY` | from `.env.local` | used when no URL is set; builds the Alchemy URL from `chain.alchemyHost` |
 | `PORT` | `8787` | listen port |
 | `HOST` | `127.0.0.1` | any other value requires `AUTH_TOKEN` |
 | `AUTH_TOKEN` | unset | when set, gates every `/api/` route |

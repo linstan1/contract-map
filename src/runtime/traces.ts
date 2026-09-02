@@ -7,7 +7,7 @@
  */
 
 import { DEPTH_BUDGETS } from "../config";
-import { callTracerToTree, flatTracesToTree, type RpcClient } from "../rpc";
+import { callTracerToTree, flatTracesToTree, meansMethodUnsupported, type RpcClient } from "../rpc";
 import type { ChainConfig, Depth, RuntimeAnalysis, TraceTx, TraceWindow } from "../types";
 import { aggregateTraces, type LabelSource, type SelectorResolver } from "./aggregate";
 import { discoverCandidates, TOTAL_BUDGET_MS, type CandidateTx } from "./discover";
@@ -99,23 +99,66 @@ function rankCandidates(candidates: CandidateTx[], cap: number, stratified: bool
   return selected;
 }
 
-/** Fetches and normalises one transaction's call tree, using the method the chain actually answers. */
-async function traceOne(chain: ChainConfig, rpc: RpcClient, candidate: CandidateTx, warnings: string[]): Promise<TraceTx | undefined> {
-  try {
-    if (chain.traceFilter) {
-      const flat = await rpc.traceTransaction(candidate.hash);
-      const root = flatTracesToTree(flat);
-      if (!root) return undefined;
-      return { hash: candidate.hash, blockNumber: candidate.blockNumber, timestamp: candidate.timestamp, root };
-    }
-    const callTracer = await rpc.debugTraceTransaction(candidate.hash);
-    if (!callTracer) return undefined;
-    return { hash: candidate.hash, blockNumber: candidate.blockNumber, timestamp: candidate.timestamp, root: callTracerToTree(callTracer) };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    warnings.push(`Failed to trace ${candidate.hash}: ${message}`);
-    return undefined;
+/** The two ways one transaction is expanded into a call tree. */
+type TraceMethod = "trace_transaction" | "debug_traceTransaction";
+
+/** Which method this endpoint answers, learned during the run. */
+interface TraceMethodState {
+  /** The method used for the next transaction. */
+  current: TraceMethod;
+  /** Every method this endpoint has already refused. */
+  refused: Set<TraceMethod>;
+}
+
+const OTHER_METHOD: Record<TraceMethod, TraceMethod> = {
+  trace_transaction: "debug_traceTransaction",
+  debug_traceTransaction: "trace_transaction",
+};
+
+/** One expansion attempt with one named method. */
+async function traceWith(method: TraceMethod, rpc: RpcClient, candidate: CandidateTx): Promise<TraceTx | undefined> {
+  if (method === "trace_transaction") {
+    const flat = await rpc.traceTransaction(candidate.hash);
+    const root = flatTracesToTree(flat);
+    if (!root) return undefined;
+    return { hash: candidate.hash, blockNumber: candidate.blockNumber, timestamp: candidate.timestamp, root };
   }
+  const callTracer = await rpc.debugTraceTransaction(candidate.hash);
+  if (!callTracer) return undefined;
+  return { hash: candidate.hash, blockNumber: candidate.blockNumber, timestamp: candidate.timestamp, root: callTracerToTree(callTracer) };
+}
+
+/**
+ * Fetches and normalises one transaction's call tree, with the method the
+ * endpoint really answers.
+ *
+ * The chain registry states which method the reference provider answers, and
+ * that is the first choice. A user may configure any provider, so a refusal
+ * is not fatal: the other method runs at once, and the working method is
+ * remembered for every later transaction of the same run.
+ */
+async function traceOne(rpc: RpcClient, candidate: CandidateTx, state: TraceMethodState, warnings: string[]): Promise<TraceTx | undefined> {
+  const order: TraceMethod[] = [state.current, OTHER_METHOD[state.current]].filter((m) => !state.refused.has(m));
+  for (const method of order) {
+    try {
+      const traced = await traceWith(method, rpc, candidate);
+      if (method !== state.current) {
+        warnings.push(`The endpoint refuses ${state.current}, so ${method} expanded the traces instead.`);
+        state.current = method;
+      }
+      return traced;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (meansMethodUnsupported(message)) {
+        state.refused.add(method);
+        continue;
+      }
+      warnings.push(`Failed to trace ${candidate.hash}: ${message}`);
+      return undefined;
+    }
+  }
+  warnings.push(`Failed to trace ${candidate.hash}: this endpoint answers neither trace_transaction nor debug_traceTransaction.`);
+  return undefined;
 }
 
 /**
@@ -125,11 +168,11 @@ async function traceOne(chain: ChainConfig, rpc: RpcClient, candidate: Candidate
  * inside the budget instead of blocking until every candidate finishes.
  */
 async function traceWithDeadline(
-  chain: ChainConfig,
   rpc: RpcClient,
   candidates: CandidateTx[],
   deadline: number,
   startedAt: number,
+  state: TraceMethodState,
   warnings: string[],
   onProgress?: (stage: string, detail: string) => void,
 ): Promise<{ txs: TraceTx[]; stoppedForDeadline: boolean }> {
@@ -146,7 +189,7 @@ async function traceWithDeadline(
       const index = cursor++;
       if (index >= candidates.length) return;
       const candidate = candidates[index] as CandidateTx;
-      results[index] = await traceOne(chain, rpc, candidate, warnings);
+      results[index] = await traceOne(rpc, candidate, state, warnings);
       traced++;
       onProgress?.("runtime", `[${((Date.now() - startedAt) / 1000).toFixed(1)}s] traced ${traced}/${candidates.length} transactions`);
     }
@@ -192,6 +235,13 @@ export async function analyzeRuntime(input: RuntimeInput): Promise<RuntimeAnalys
   const warnings: string[] = [];
   const startedAt = Date.now();
   const tracingDeadline = startedAt + TOTAL_BUDGET_MS[depth];
+  /* The registry names the method the reference provider answers. It is only
+   * the first choice: `traceOne` switches when the configured endpoint
+   * refuses it. */
+  const traceMethod: TraceMethodState = {
+    current: chain.traceFilter ? "trace_transaction" : "debug_traceTransaction",
+    refused: new Set(),
+  };
 
   onProgress?.("runtime", "discovering candidate transactions");
   const discovery = await discoverCandidates(chain, rpc, identity, headBlock, depth, onProgress, startedAt);
@@ -203,7 +253,7 @@ export async function analyzeRuntime(input: RuntimeInput): Promise<RuntimeAnalys
 
   const ranked = rankCandidates(discovery.txs, budget.maxTracedTxs, discovery.strategy === "stratified");
   onProgress?.("runtime", `[${((Date.now() - startedAt) / 1000).toFixed(1)}s] tracing ${ranked.length} of ${discovery.txs.length} candidate transactions`);
-  const { txs, stoppedForDeadline } = await traceWithDeadline(chain, rpc, ranked, tracingDeadline, startedAt, warnings, onProgress);
+  const { txs, stoppedForDeadline } = await traceWithDeadline(rpc, ranked, tracingDeadline, startedAt, traceMethod, warnings, onProgress);
   if (stoppedForDeadline) {
     warnings.push(`Stopped tracing after the ${(TOTAL_BUDGET_MS[depth] / 1000).toFixed(0)}s runtime time budget; traced ${txs.length} of ${ranked.length} selected transactions.`);
   }
@@ -229,7 +279,7 @@ export async function analyzeRuntime(input: RuntimeInput): Promise<RuntimeAnalys
     candidateTxs: discovery.txs.length,
     sampledTxs: txs.length,
     sampled: txs.length < discovery.txs.length,
-    method: `${discovery.method}; expanded with ${chain.traceFilter ? "trace_transaction" : "debug_traceTransaction (callTracer)"}`,
+    method: `${discovery.method}; expanded with ${traceMethod.current === "trace_transaction" ? "trace_transaction" : "debug_traceTransaction (callTracer)"}`,
     note: stoppedForDeadline ? `${discovery.note} Tracing itself was also cut short by the time budget.` : discovery.note,
   };
 

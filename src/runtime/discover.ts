@@ -39,7 +39,7 @@
 
 import { DEPTH_BUDGETS } from "../config";
 import type { ChainConfig, Depth } from "../types";
-import { selectorOfInput, type FlatTrace, type RpcClient } from "../rpc";
+import { meansMethodUnsupported, selectorOfInput, type FlatTrace, type RpcClient } from "../rpc";
 import { fetchCandidateTxs } from "../blockscout";
 
 /** One transaction that may involve the target, with coverage hints for ranking. */
@@ -98,6 +98,20 @@ const FAST_SLICE_MS = 1_000;
 
 function elapsedSeconds(startedAt: number): string {
   return ((Date.now() - startedAt) / 1000).toFixed(1);
+}
+
+/**
+ * The endpoint will never answer `trace_filter`, whatever the block range.
+ *
+ * A provider without the `trace` namespace, or without an archive plan,
+ * rejects every request the same way. Shrinking the slice cannot fix that, so
+ * the scan stops and the Blockscout path takes over at once.
+ */
+class TraceFilterUnsupportedError extends Error {
+  constructor(readonly reason: string) {
+    super(reason);
+    this.name = "TraceFilterUnsupportedError";
+  }
 }
 
 /** The first slice size for `chain`, scaled so a fast-blocking chain starts with proportionally fewer blocks. */
@@ -201,9 +215,12 @@ async function fetchSlice(
       const pageCapped = to.frames.length >= PAGE_SIZE || from.frames.length >= PAGE_SIZE;
       return { frames, scannedLo: sliceLo, gaveUp: false, durationMs, pageCapped };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      /* A refused method fails the same way at every slice size. Report it
+       * once, and let the caller switch discovery paths. */
+      if (meansMethodUnsupported(message)) throw new TraceFilterUnsupportedError(message);
       const span = hi - sliceLo + 1;
       if (span <= MIN_SLICE_BLOCKS) {
-        const message = error instanceof Error ? error.message : String(error);
         warnings.push(`trace_filter failed on blocks ${sliceLo}-${hi}, even at the minimum slice size: ${message}`);
         return { frames: [], scannedLo: hi + 1, gaveUp: true, durationMs: Date.now() - started, pageCapped: false };
       }
@@ -225,6 +242,15 @@ interface ScanBudget {
   maxTracedTxs?: number;
 }
 
+/** What one backward scan of a block window found. */
+interface ScanResult {
+  frames: FlatTrace[];
+  /** Oldest block really read, or `toBlock + 1` when nothing was read. */
+  scannedFrom: number;
+  hitCap: boolean;
+  timedOut: boolean;
+}
+
 /**
  * Scans backwards from `toBlock` down to `floorBlock`, stopping at the
  * frame cap, `budget.deadline`, or a scan failure. The slice size adapts
@@ -244,7 +270,7 @@ async function scanWindow(
   budget: ScanBudget,
   priorCandidates: number,
   onProgress?: (stage: string, detail: string) => void,
-): Promise<{ frames: FlatTrace[]; scannedFrom: number; hitCap: boolean; timedOut: boolean }> {
+): Promise<ScanResult> {
   const floor = Math.max(0, floorBlock);
   const frames: FlatTrace[] = [];
   let cur = toBlock;
@@ -463,6 +489,10 @@ async function discoverViaTraceFilter(
   const perSegmentCandidates: Map<string, CandidateTx>[] = [];
   let allFrames: FlatTrace[] = [];
   let escaped = false;
+  /* Set when the endpoint refuses `trace_filter` itself. The registry flag
+   * describes one provider, and a user may configure another one, so the
+   * refusal is discovered here and answered with the Blockscout path. */
+  let unsupported: string | undefined;
 
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i] as DiscoverySlice;
@@ -473,7 +503,14 @@ async function discoverViaTraceFilter(
     const segmentBudget: ScanBudget = { ...budget, deadline: Math.min(budget.deadline, Date.now() + perSegmentBudgetMs) };
     const segmentFrameCap = Math.min(perSegmentFrameCap, depthBudget.maxFrames - allFrames.length);
     const priorCandidates = distinctTxCount(allFrames);
-    const scan = await scanWindow(rpc, chain, identity, segment.toBlock, segment.fromBlock, segmentFrameCap, warnings, segmentBudget, priorCandidates, onProgress);
+    let scan: ScanResult;
+    try {
+      scan = await scanWindow(rpc, chain, identity, segment.toBlock, segment.fromBlock, segmentFrameCap, warnings, segmentBudget, priorCandidates, onProgress);
+    } catch (error) {
+      if (!(error instanceof TraceFilterUnsupportedError)) throw error;
+      unsupported = error.reason;
+      break;
+    }
 
     if (scan.scannedFrom <= segment.toBlock) {
       readSlices.push({ fromBlock: scan.scannedFrom, toBlock: segment.toBlock });
@@ -497,6 +534,17 @@ async function discoverViaTraceFilter(
       method: `trace_filter abandoned after ${elapsedSeconds(startedAt)}s (found ${found}/${depthBudget.maxTracedTxs} candidates); switched to ${fallback.method}`,
       note: `The trace_filter scan was too slow on ${chain.label} and was abandoned after ${elapsedSeconds(startedAt)}s. ${fallback.note}`,
       warnings: [...warnings, ...fallback.warnings],
+    };
+  }
+
+  if (unsupported) {
+    onProgress?.("runtime-discover", `[${elapsedSeconds(startedAt)}s] this endpoint refuses trace_filter; switching to Blockscout`);
+    const fallback = await discoverViaBlockscout(chain, identity, headBlock, depth);
+    return {
+      ...fallback,
+      method: `trace_filter refused by the endpoint; switched to ${fallback.method}`,
+      note: `This endpoint does not answer trace_filter on ${chain.label}: ${unsupported} ${fallback.note}`,
+      warnings: [...warnings, `trace_filter is not available on the configured endpoint: ${unsupported}`, ...fallback.warnings],
     };
   }
 

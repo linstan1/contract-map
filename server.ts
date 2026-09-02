@@ -14,15 +14,15 @@
  *      loopback host without a token refuses to start.
  */
 
-import { CHAINS, findAlchemyKey, MISSING_KEY_MESSAGE, PORT } from "./src/config";
+import { CHAINS, hasRpcEndpoint, MISSING_ENDPOINT_MESSAGE, PORT } from "./src/config";
 import { analyzeContract } from "./src/pipeline";
 import type { Depth } from "./src/types";
 
-/* Every user brings their own RPC key. Refuse to start without one, so the
- * failure arrives here with instructions instead of inside the first
- * analysis as a provider error. */
-if (!findAlchemyKey()) {
-  console.error(MISSING_KEY_MESSAGE);
+/* Every user brings their own RPC endpoint, from any provider. Refuse to
+ * start without one, so the failure arrives here with instructions instead of
+ * inside the first analysis as a provider error. */
+if (!hasRpcEndpoint()) {
+  console.error(MISSING_ENDPOINT_MESSAGE);
   process.exit(1);
 }
 

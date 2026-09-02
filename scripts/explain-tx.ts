@@ -17,7 +17,7 @@
  */
 
 import { selectorOfInput, flatTracesToTree, callTracerToTree, RpcClient, type FlatTrace } from "../src/rpc";
-import { chainByKey, findAlchemyKey, MISSING_KEY_MESSAGE } from "../src/config";
+import { chainByKey, hasRpcEndpoint, MISSING_ENDPOINT_MESSAGE } from "../src/config";
 import { SignatureRegistry } from "../src/signatures";
 import { LabelBook } from "../src/labels";
 import type { CallFrame } from "../src/types";
@@ -34,8 +34,8 @@ if (!hash || !target) {
   console.error("Usage: bun run scripts/explain-tx.ts <txHash> <targetAddress> [chain] [--json <file>]");
   process.exit(1);
 }
-if (!findAlchemyKey()) {
-  console.error(MISSING_KEY_MESSAGE);
+if (!hasRpcEndpoint()) {
+  console.error(MISSING_ENDPOINT_MESSAGE);
   process.exit(1);
 }
 

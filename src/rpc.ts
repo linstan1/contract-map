@@ -11,7 +11,7 @@
  * aggregation code in `src/runtime` never branches on the provider.
  */
 
-import { alchemyKey, rpcUrl } from "./config";
+import { rpcSecrets, rpcUrl } from "./config";
 import type { CallFrame, CallType, ChainConfig } from "./types";
 
 export interface FlatTraceAction {
@@ -63,16 +63,19 @@ export interface TraceFilterParams {
 }
 
 /**
- * Removes the RPC key from text that leaves this module.
+ * Removes every RPC credential from text that leaves this module.
  *
- * The endpoint URL carries the key, and a failed `fetch` puts the URL in its
- * message. Those messages reach the browser and the log, so the key is
- * replaced before any message escapes. `RpcError` is the only error type this
- * module throws, so the scrub in its constructor covers every path.
+ * The endpoint URL carries the credential, and a failed `fetch` puts the URL
+ * in its message. Those messages reach the browser and the log, so each
+ * secret is replaced before any message escapes. `RpcError` is the only error
+ * type this module throws, so the scrub in its constructor covers every path.
  */
-function scrubKey(text: string): string {
-  const key = alchemyKey();
-  return key.length > 0 ? text.split(key).join("***") : text;
+function scrubSecrets(text: string): string {
+  let out = text;
+  for (const secret of rpcSecrets()) {
+    if (secret.length > 0) out = out.split(secret).join("***");
+  }
+  return out;
 }
 
 class RpcError extends Error {
@@ -81,7 +84,7 @@ class RpcError extends Error {
     readonly method: string,
     readonly code?: number,
   ) {
-    super(scrubKey(message));
+    super(scrubSecrets(message));
     this.name = "RpcError";
   }
 }
@@ -91,6 +94,31 @@ function isTransient(message: string, status: number): boolean {
   if (status === 429 || status >= 500) return true;
   const lower = message.toLowerCase();
   return lower.includes("timeout") || lower.includes("capacity") || lower.includes("rate limit") || lower.includes("try again");
+}
+
+/**
+ * Texts that mean the endpoint refuses the method itself, not this request.
+ *
+ * Any provider may serve the chain, so the trace support is a property of
+ * the endpoint, not of the chain. A caller uses this test to stop retrying a
+ * method that cannot answer, and to try the other trace method instead.
+ */
+const UNSUPPORTED_METHOD_PATTERNS = [
+  /method not found/i,
+  /method .* (?:is )?not (?:supported|available|enabled|allowed)/i,
+  /unsupported method/i,
+  /does not exist\/is not available/i,
+  /not (?:supported|available) on this (?:endpoint|plan|tier|node)/i,
+  /requires? (?:a )?(?:personal |paid |archive )?(?:token|plan|tier|subscription|upgrade)/i,
+  /archive (?:requests?|data|node) (?:are |is )?(?:not |require)/i,
+  /(?:unauthorized|forbidden|invalid api key|access denied)/i,
+  /trace namespace/i,
+  /debug namespace/i,
+];
+
+/** `true` when no retry and no smaller request can ever make this method succeed. */
+export function meansMethodUnsupported(message: string): boolean {
+  return UNSUPPORTED_METHOD_PATTERNS.some((pattern) => pattern.test(message));
 }
 
 export class RpcClient {

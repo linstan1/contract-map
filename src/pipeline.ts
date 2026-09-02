@@ -18,7 +18,7 @@
 
 import { bytecodeSelectors, detectStandards, EIP1822_SLOT, EIP1967_BEACON_SLOT, EIP1967_IMPLEMENTATION_SLOT, parseAbi, selectorOf, signatureOf, topic0Of } from "./abi";
 import { fetchContractMetadata, type ContractMetadata } from "./blockscout";
-import { chainByKey, STAGE_BUDGET_MS } from "./config";
+import { chainByKey, rpcProviderLabel, STAGE_BUDGET_MS } from "./config";
 import { analyzeBytecode } from "./bytecode/index";
 import { recoverSources } from "./sourcerecovery";
 import { analyzeVyperSources } from "./vyper/index";
@@ -68,7 +68,7 @@ export async function analyzeContract(options: AnalyzeOptions): Promise<Analysis
   const depth = options.depth;
   const progress = options.onProgress ?? (() => {});
   const errors: string[] = [];
-  const dataSources: string[] = [`Alchemy ${chain.alchemyHost}`];
+  const dataSources: string[] = [rpcProviderLabel(chain)];
 
   const rpc = new RpcClient(chain);
   progress("connect", `Read the head block of ${chain.label}.`, 3);

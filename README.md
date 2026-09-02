@@ -208,7 +208,7 @@ bun run scripts/explain-tx.ts <txHash> <targetAddress> ethereum
 
 ## Quick start
 
-Requirements: [Bun](https://bun.sh) 1.2 or later, git, and an RPC key of your own. No Node.js, no database and no wallet are needed. The tool only reads chain data, so it never asks for a private key or a signature.
+Requirements: [Bun](https://bun.sh) 1.2 or later, git, and an RPC endpoint of your own, from any provider. No Node.js, no database and no wallet are needed. The tool only reads chain data, so it never asks for a private key or a signature.
 
 ### 1. Get the code
 
@@ -220,13 +220,24 @@ bun install
 
 `bun install` fetches two development packages only: `@types/bun` and `typescript`. The application itself has no runtime dependency.
 
-### 2. Configure your own key
+### 2. Configure your own endpoint
 
-The repository ships no key and contains no default, so this step is required. Create a free key at [alchemy.com](https://alchemy.com), then:
+The repository ships no key, no URL and no default, so this step is required. Pick one of the two ways.
+
+**Any provider, by URL.** Set `RPC_URL` to the full JSON-RPC URL. It serves every chain.
 
 ```bash
 cp .env.example .env.local
-# open .env.local and set ALCHEMY_API_KEY=<your key>
+# open .env.local and set RPC_URL=https://your-provider.example/your-path
+```
+
+One chain at a time uses `RPC_URL_` plus the chain key in capitals, for example `RPC_URL_ETHEREUM`, `RPC_URL_BASE` or `RPC_URL_ARBITRUM`. A per-chain value wins over `RPC_URL`. Mix the two freely: one URL for the chain you care about, and `RPC_URL` or an Alchemy key for the rest.
+
+**An Alchemy key.** Set `ALCHEMY_API_KEY` instead, and the code builds the Alchemy URL for each chain from `src/chains.ts`.
+
+```bash
+# in .env.local
+ALCHEMY_API_KEY=<your key>
 ```
 
 On Linux or macOS, restrict the file to your user:
@@ -238,7 +249,7 @@ chmod 600 .env.local
 An environment variable works instead of the file, and takes precedence:
 
 ```bash
-export ALCHEMY_API_KEY=<your key>
+export RPC_URL=https://your-provider.example/your-path
 ```
 
 A non-interactive setup, for a script or an agent:
@@ -246,17 +257,30 @@ A non-interactive setup, for a script or an agent:
 ```bash
 git clone https://github.com/linstan1/contract-map.git && cd contract-map
 bun install
-printf 'ALCHEMY_API_KEY=%s\n' "$ALCHEMY_API_KEY" > .env.local && chmod 600 .env.local
+printf 'RPC_URL=%s\n' "$RPC_URL" > .env.local && chmod 600 .env.local
 bun run check-secrets && bunx tsc --noEmit && bun test
 bun run server.ts
 ```
 
+#### What your provider must answer
+
+| Part of the analysis | Methods needed |
+|---|---|
+| Static half: bytecode, source, proxy resolution, possible call paths | `eth_blockNumber`, `eth_getCode`, `eth_getStorageAt`, `eth_call` |
+| Observed half: inbound and outbound edges, counts, proof links | `trace_filter` plus `trace_transaction`, or `debug_traceTransaction` with the `callTracer` |
+
+Every provider answers the first row. The second row needs the `trace` namespace or the `debug` namespace, and an archive plan deep enough for the span your depth setting asks for.
+
+The code adapts to what your endpoint really answers. A provider that refuses `trace_filter` switches to Blockscout candidate discovery at once. A provider that refuses `trace_transaction` expands the candidates with `debug_traceTransaction` instead. Each switch is stated in the window note and in the review, so a smaller answer never looks like a complete one.
+
+Run `bun run probe-chains` to measure your own provider. The chain table in `src/chains.ts` describes Alchemy, and a different provider gives different answers.
+
 ### 3. Check the setup before you use it
 
 ```bash
-bun run check-secrets   # No credential found in 85 tracked files.
+bun run check-secrets   # No credential found in 94 tracked files.
 bunx tsc --noEmit       # no output
-bun test                # 62 pass, 0 fail
+bun test                # 80 pass, 1 skip, 0 fail
 ```
 
 These three commands need no key and no network. They confirm the checkout is intact and carries no credential.
@@ -301,13 +325,13 @@ bun run scripts/probe-chains.ts
 | Network exposure | binds `127.0.0.1` only | leave `HOST` unset for local use |
 | Remote access | refused | set `HOST` **and** `AUTH_TOKEN` together; the server exits if `HOST` is public without a token |
 | API authentication | off on loopback | `AUTH_TOKEN=$(openssl rand -hex 32)`, then send `X-Auth-Token` |
-| Key exposure to the browser | none | nothing to do; the page calls only `/api/*` on your own host |
-| Key in error output | scrubbed | nothing to do; `src/rpc.ts` replaces it with `***` |
-| Key in version control | ignored | run `bun run check-secrets` before you push a fork |
+| Credential exposure to the browser | none | nothing to do; the page calls only `/api/*` on your own host |
+| Credential in error output | scrubbed | nothing to do; `src/rpc.ts` replaces the key, the whole URL and each credential inside it with `***` |
+| Credential in version control | ignored | run `bun run check-secrets` before you push a fork |
 | Third-party assets | none | nothing to do; no CDN, no font and no analytics are loaded |
 | Signing keys | never used | the tool reads chain state only, so no wallet is involved |
 
-Two habits worth adopting at the provider: restrict the key to your own machine or domain in the Alchemy dashboard, and set a request cap. This tool spends requests in proportion to the depth you choose.
+Two habits worth adopting at the provider: restrict the credential to your own machine or domain in the provider dashboard, and set a request cap. This tool spends requests in proportion to the depth you choose.
 
 To expose the interface beyond your machine:
 
@@ -315,13 +339,15 @@ To expose the interface beyond your machine:
 AUTH_TOKEN=$(openssl rand -hex 32) HOST=0.0.0.0 bun run server.ts
 ```
 
-The page then asks for the token once and keeps it in `localStorage`. Without `AUTH_TOKEN`, the same command refuses to start rather than serve an open endpoint that spends your key.
+The page then asks for the token once and keeps it in `localStorage`. Without `AUTH_TOKEN`, the same command refuses to start rather than serve an open endpoint that spends your own request budget.
 
 ### If something fails
 
 | Symptom | Cause and fix |
 | --- | --- |
-| `No RPC key is configured, and this project ships none.` | Step 2 is missing or the value is a placeholder. Set a real key. |
+| `No RPC endpoint is configured, and this project ships none.` | Step 2 is missing or the value is a placeholder. Set `RPC_URL`, `RPC_URL_<CHAIN>` or `ALCHEMY_API_KEY`. |
+| `This endpoint does not answer trace_filter` | Your provider has no `trace` namespace or no archive plan. The run continues on the Blockscout path with a smaller window. |
+| `The endpoint refuses trace_transaction` | Expected on some providers. The run expands the candidates with `debug_traceTransaction` instead. |
 | `holds no code on <chain>` | The address is an account, not a contract, or it is on another chain. |
 | `is not a 20 byte address` | The input is not `0x` plus 40 hex characters. |
 | The explorer refused, source view is thin | Blockscout answered HTTP 429. Wait, then run again. The review panel names the refusal. |
@@ -369,7 +395,7 @@ flowchart TD
 
 | Source                                     | Use                                                                    |
 | ------------------------------------------ | ---------------------------------------------------------------------- |
-| Alchemy JSON-RPC                           | bytecode, storage and traces                                           |
+| Your JSON-RPC endpoint, from any provider  | bytecode, storage and traces                                           |
 | `trace_filter` and `trace_transaction`     | trace discovery on supported chains                                    |
 | `debug_traceTransaction` with `callTracer` | transaction-level call trees                                           |
 | Blockscout v2                              | verified source, ABI, proxy implementations, token metadata and labels |
@@ -387,7 +413,7 @@ The repository currently contains 19 live-probed chain configurations.
 | `trace_filter` + `trace_transaction`             | Ethereum, Base, Optimism, Gnosis, Celo, Linea, Unichain, Ink, Soneium, Worldchain, BNB, Berachain, Sonic, Ronin, Zora |
 | Blockscout candidates + `debug_traceTransaction` | Arbitrum One, Polygon, zkSync, Scroll                                                                                 |
 
-Chain support and exclusions are defined in `src/chains.ts`.
+Chain support and exclusions are defined in `src/chains.ts`. That table was probed against Alchemy, so it states the first choice per chain, not a fixed rule. The code follows the endpoint you configure: it moves to Blockscout candidates when your provider refuses `trace_filter`, and to `debug_traceTransaction` when it refuses `trace_transaction`. Run `bun run probe-chains` to measure your own provider.
 
 ## Scan depth
 
@@ -429,9 +455,9 @@ If `HOST` exposes the service externally, the server requires `AUTH_TOKEN`.
 
 API routes support authentication through `X-Auth-Token` or a token query parameter.
 
-RPC keys remain server-side and are scrubbed from propagated RPC errors, because a failed request otherwise carries the endpoint URL. The browser never receives a key.
+RPC credentials remain server-side and are scrubbed from propagated RPC errors, because a failed request otherwise carries the endpoint URL. `src/config.ts` builds the scrub list from the Alchemy key, the whole custom URL, each long path segment, each long query value and the userinfo password. The browser never receives any of them.
 
-No key is committed and no key is distributed. `.env.local` and every `.env.*` variant are ignored by git, `scripts/check-secrets.ts` fails the build on any credential shape in a tracked file, and CI runs that scan before the type check and the tests. A fork therefore starts with no credential and must configure its own.
+No credential is committed and none is distributed. `.env.local` and every `.env.*` variant are ignored by git, `scripts/check-secrets.ts` fails the build on any credential shape in a tracked file, including a populated `RPC_URL`, and CI runs that scan before the type check and the tests. A fork therefore starts with no credential and must configure its own.
 
 ## Verification
 

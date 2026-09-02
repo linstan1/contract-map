@@ -1,9 +1,10 @@
 import { expect, test } from "bun:test";
 import { DEPTH_BUDGETS } from "../config";
-import { RpcClient, type FlatTrace, type TraceFilterParams } from "../rpc";
+import { RpcClient, type CallTracerFrame, type FlatTrace, type TraceFilterParams } from "../rpc";
 import type { CallFrame, ChainConfig, TraceTx } from "../types";
 import { aggregateTraces, type LabelSource, type SelectorResolver } from "./aggregate";
 import { discoverCandidates, TOTAL_BUDGET_MS } from "./discover";
+import { analyzeRuntime } from "./traces";
 
 const PROXY = "0xproxy00000000000000000000000000000001";
 const IMPL = "0ximpl000000000000000000000000000000002";
@@ -404,4 +405,123 @@ test("a gap in the middle of the span is reported honestly as a stratified windo
   expect(result.strategy).toBe("stratified");
   expect(result.note.toLowerCase()).toContain("blocks");
   expect(result.txs.length).toBeGreaterThan(0);
+});
+
+/**
+ * A provider without the `trace` namespace. Every request fails the same
+ * way, whatever the block range, so no smaller slice can succeed. A user who
+ * configures `RPC_URL` may well point at such an endpoint, even on a chain
+ * the registry marks as `traceFilter: true`.
+ */
+class NoTraceNamespaceRpc extends RpcClient {
+  calls = 0;
+
+  async traceFilter(): Promise<FlatTrace[]> {
+    this.calls++;
+    throw new Error("trace_filter: the method trace_filter does not exist/is not available");
+  }
+}
+
+/** A provider that answers the method but times out on the range asked for. A smaller slice may still work. */
+class RangeTooBigRpc extends RpcClient {
+  calls = 0;
+
+  async traceFilter(): Promise<FlatTrace[]> {
+    this.calls++;
+    throw new Error("trace_filter: query timeout exceeded, reduce the block range");
+  }
+}
+
+test("an endpoint without the trace namespace switches to the Blockscout path at once", async () => {
+  const rpc = new NoTraceNamespaceRpc(SLOW_CHAIN);
+  const result = await discoverCandidates(SLOW_CHAIN, rpc, [PROXY], 1_000_000, "quick", undefined, Date.now(), TOTAL_BUDGET_MS.quick);
+
+  /* One refusal is enough. The scan MUST NOT shrink the slice and retry,
+   * because that spends the whole budget on a method that cannot answer. */
+  expect(rpc.calls).toBeLessThanOrEqual(2);
+  expect(result.method).toContain("refused by the endpoint");
+  expect(result.method).toContain("Blockscout");
+  expect(result.warnings.join(" ")).toContain("trace_filter is not available on the configured endpoint");
+  /* SLOW_CHAIN has no Blockscout host, so the honest answer is no
+   * candidates, and no block range is claimed as read. */
+  expect(result.txs).toHaveLength(0);
+  expect(result.slices).toHaveLength(0);
+});
+
+test("a range error still shrinks the slice instead of abandoning the method", async () => {
+  const rpc = new RangeTooBigRpc(SLOW_CHAIN);
+  const result = await discoverCandidates(SLOW_CHAIN, rpc, [PROXY], 1_000_000, "quick", undefined, Date.now(), 400);
+
+  /* A timeout is about this range, not about the method, so the scan halves
+   * the slice and tries again. */
+  expect(rpc.calls).toBeGreaterThan(2);
+  expect(result.method).toContain("trace_filter");
+  expect(result.method).not.toContain("refused");
+  expect(result.warnings.join(" ")).toContain("minimum slice size");
+});
+
+/**
+ * An endpoint that answers `trace_filter` for discovery but refuses
+ * `trace_transaction`, and answers `debug_traceTransaction` instead. Several
+ * providers behave exactly this way, so the expansion MUST follow the
+ * endpoint and not the registry flag.
+ */
+class DebugOnlyExpansionRpc extends RpcClient {
+  flatCalls = 0;
+  debugCalls = 0;
+
+  async traceFilter(params: TraceFilterParams): Promise<FlatTrace[]> {
+    return [
+      {
+        action: { from: CALLER_A, to: PROXY, input: SIG.deposit },
+        blockNumber: params.toBlock,
+        subtraces: 0,
+        traceAddress: [],
+        transactionHash: "0xdebug-only-tx",
+        type: "call",
+      },
+    ];
+  }
+
+  async traceTransaction(): Promise<FlatTrace[]> {
+    this.flatCalls++;
+    throw new Error("trace_transaction: the method trace_transaction does not exist/is not available");
+  }
+
+  async debugTraceTransaction(): Promise<CallTracerFrame | undefined> {
+    this.debugCalls++;
+    return {
+      from: CALLER_A,
+      to: PROXY,
+      input: SIG.deposit,
+      type: "CALL",
+      value: "0x0",
+      calls: [{ from: PROXY, to: EXT1, input: SIG.extTransfer, type: "CALL", value: "0x0" }],
+    };
+  }
+}
+
+test("an endpoint that refuses trace_transaction expands with debug_traceTransaction", async () => {
+  const rpc = new DebugOnlyExpansionRpc(SLOW_CHAIN);
+  const result = await analyzeRuntime({
+    chain: SLOW_CHAIN,
+    rpc,
+    target: PROXY,
+    identity: [PROXY, IMPL],
+    headBlock: 1_000_000,
+    depth: "quick",
+    registry: fakeRegistry(),
+    labels: fakeLabels(CONTRACTS),
+    targetSelectors: new Set([SIG.deposit]),
+  });
+
+  expect(rpc.flatCalls).toBeGreaterThan(0);
+  expect(rpc.debugCalls).toBeGreaterThan(0);
+  expect(result.available).toBe(true);
+  /* The window MUST name the method that really produced the trees. */
+  expect(result.window.method).toContain("debug_traceTransaction");
+  expect(result.warnings.join(" ")).toContain("refuses trace_transaction");
+  /* The proof survives the switch: the observed edge carries its transaction. */
+  const toExt1 = result.outbound.edges.find((e) => e.destination === EXT1);
+  expect(toExt1?.examples.map((e) => e.hash)).toContain("0xdebug-only-tx");
 });

@@ -40,7 +40,16 @@ const RULES: Rule[] = [
   {
     name: "provider url with credential",
     reason: "A provider URL with a path credential leaks that credential.",
-    pattern: /(g\.alchemy\.com\/v2|infura\.io\/v3|quiknode\.pro|\.alchemyapi\.io\/v2)\/[A-Za-z0-9_-]{6,}/g,
+    pattern: /(g\.alchemy\.com\/v2|infura\.io\/v3|quiknode\.pro|\.alchemyapi\.io\/v2|lb\.drpc\.org\/[a-z]+|rpc\.ankr\.com\/[a-z_]+|nodereal\.io\/v1|blastapi\.io|chainstacklabs\.com|getblock\.io)\/[A-Za-z0-9_-]{6,}/g,
+  },
+  {
+    name: "populated endpoint assignment",
+    reason: "An RPC endpoint may carry a credential in its path or query. Keep it in .env.local.",
+    pattern: /\bRPC_URL(?:_[A-Z0-9_]+)?\s*[=:]\s*["']?https?:\/\/\S+/g,
+    /* Prose, code that reads the value, and a host in the `.example`
+     * namespace are not real endpoints. RFC 6761 reserves `.example` and
+     * `example.com` for documents, so no credential can hide there. */
+    allow: /process\.env|import\.meta\.env|<full JSON-RPC URL>|<full URL>|your_rpc_url_here|<url>|\$\{|https?:\/\/[^\s/]*(?:\.example|example\.(?:com|org|net))(?:[/:?]|\b)/,
   },
   {
     name: "populated key assignment",

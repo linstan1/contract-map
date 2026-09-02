@@ -7,7 +7,7 @@
  * functions, one full function map, both runtime directions, and the review.
  */
 
-import { findAlchemyKey, MISSING_KEY_MESSAGE } from "../src/config";
+import { hasRpcEndpoint, MISSING_ENDPOINT_MESSAGE } from "../src/config";
 import { analyzeContract } from "../src/pipeline";
 import type { Depth } from "../src/types";
 
@@ -16,10 +16,10 @@ if (!address) {
   console.error("Usage: bun run scripts/smoke.ts <address> [chain] [depth]");
   process.exit(1);
 }
-/* This project ships no key. Say that plainly instead of failing later
+/* This project ships no endpoint. Say that plainly instead of failing later
  * inside a provider call. */
-if (!findAlchemyKey()) {
-  console.error(MISSING_KEY_MESSAGE);
+if (!hasRpcEndpoint()) {
+  console.error(MISSING_ENDPOINT_MESSAGE);
   process.exit(1);
 }
 
