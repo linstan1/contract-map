@@ -173,6 +173,31 @@ deposit(uint256,address) → Morpho.supply(...)
 
 A row that is possible from code but not observed carries no link, because nothing proves it.
 
+<img src="docs/screenshots/10-proof-inbound-calls.webp" alt="Inbound call rows and contract roll-up cards, each with a PROOF link to the transaction that shows the call">
+
+Every inbound row and every roll-up card ends with a `PROOF` link. The link opens the transaction on the block explorer of that chain. USDC on Ethereum is the example here.
+
+<table>
+<tr>
+<td width="50%">
+
+**More than one proof transaction**
+
+<img src="docs/screenshots/11-proof-expanded.webp" alt="A proof column expanded with the +2 button to show two more transaction hashes">
+
+</td>
+<td width="50%">
+
+**Proof on observed execution**
+
+<img src="docs/screenshots/12-proof-function-detail.webp" alt="The observed execution panel of balanceOf with a proof link and a plus two button">
+
+</td>
+</tr>
+</table>
+
+A row shows the newest transaction first. The `+N` button opens the other transactions for the same edge. A chain with no known explorer shows the raw hash and a copy control instead of a dead link.
+
 Explain any transaction from the terminal, with the same walk the application uses:
 
 ```bash
