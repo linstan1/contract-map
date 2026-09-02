@@ -179,7 +179,16 @@ export class RpcClient {
         try {
           body = JSON.parse(text) as typeof body;
         } catch {
-          throw new RpcError(`${method}: provider returned non-JSON (HTTP ${response.status})`, method);
+          /* A rate limiter or a proxy answers HTML, not JSON. The status
+           * carries the whole meaning here, so a later attempt can still
+           * succeed and MUST be tried: a free endpoint answers 429 often. */
+          const nonJson = `${method}: provider returned non-JSON (HTTP ${response.status})`;
+          if (isTransient("", response.status) && attempt < attempts) {
+            lastError = nonJson;
+            await sleep(400 * attempt * attempt);
+            continue;
+          }
+          throw new RpcError(nonJson, method);
         }
         if (body.error) {
           if (isTransient(body.error.message, response.status) && attempt < attempts) {
