@@ -218,6 +218,24 @@ Three cases, three honest answers:
 Never invent the third case into the first. An analyst who sees a fabricated caller name
 draws a false conclusion about who controls the contract.
 
+### Contract or account, in the contract-level roll-up
+
+The contract map draws contracts only, so each roll-up states what its address
+is. Three sources answer, strongest first:
+
+| Evidence | Answer |
+|---|---|
+| The address emitted a frame below the root of a trace | `contract`: code ran there |
+| The explorer or an `eth_getCode` probe reports code | `contract` |
+| A source answered and reports no code | `eoa` |
+| No source answered | `unknown` |
+
+The first rule matters on a chain whose explorer refuses to describe an
+address: a caller that made a call of its own holds code, whatever the
+explorer says. The last rule keeps silence separate from a fact, so a busy
+contract is never drawn as an account and never dropped from the map for a
+reason that was never established.
+
 ---
 
 ## 7. Co-occurrence is not causation

@@ -42,7 +42,16 @@ function fakeLabels(contracts: Set<string>): LabelSource {
   return {
     load: async () => {},
     label: (address) => address,
-    info: (address) => ({ isContract: contracts.has(address.toLowerCase()), verified: true }),
+    info: (address) => ({ isContract: contracts.has(address.toLowerCase()), verified: true, known: true }),
+  };
+}
+
+/** A label book where no source answered: every address stays unknown. */
+function silentLabels(): LabelSource {
+  return {
+    load: async () => {},
+    label: (address) => address,
+    info: () => ({ isContract: false, verified: false, known: false }),
   };
 }
 
@@ -167,6 +176,21 @@ test("calls counts every occurrence, txs counts distinct transactions", async ()
   expect(contract?.txs).toBe(2);
   // Requirement 3: contract roll-ups carry proofs, one per distinct transaction here.
   expect(contract?.examples).toHaveLength(2);
+});
+
+test("an inbound roll-up separates a contract caller from an account caller", async () => {
+  const result = await aggregateTraces([buildTx1(), buildTx2()], IDENTITY, fakeRegistry(), fakeLabels(CONTRACTS));
+  expect(result.inbound.contracts.find((c) => c.address === CALLER_A)?.kind).toBe("contract");
+  expect(result.inbound.contracts.find((c) => c.address === EOA1)?.kind).toBe("eoa");
+  expect(result.outbound.contracts.find((c) => c.address === EXT1)?.kind).toBe("contract");
+});
+
+test("a silent label book still proves a caller is a contract from the trace, and never calls an unknown address an account", async () => {
+  const result = await aggregateTraces([buildTx1(), buildTx2()], IDENTITY, fakeRegistry(), silentLabels());
+  // callerA emitted a frame of its own, so code lives there whatever the explorer says.
+  expect(result.inbound.contracts.find((c) => c.address === CALLER_A)?.kind).toBe("contract");
+  // Nothing answered for the root sender, so the roll-up reports unknown, not eoa.
+  expect(result.inbound.contracts.find((c) => c.address === EOA1)?.kind).toBe("unknown");
 });
 
 test("targetFunctionCalls tallies every observed entry into the target", async () => {

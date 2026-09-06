@@ -346,10 +346,28 @@ export interface InboundEdge {
   examples: TxRef[];
 }
 
+/** What a counterparty address is. `unknown` means no source answered. */
+export type CounterpartyKind = "contract" | "eoa" | "unknown";
+
 /** Contract-level roll-up for either direction. */
 export interface ContractAggregate {
   address: Address;
   label: string;
+  /**
+   * Contract against externally owned account.
+   *
+   * An address that emitted a call inside a trace ran code, so it is a
+   * contract on that evidence alone. Otherwise the explorer answer and the
+   * `eth_getCode` probe decide. `unknown` means both stayed silent, and the
+   * reader must not read it as an account.
+   */
+  kind: CounterpartyKind;
+  /** `true` when the explorer reports verified source at this address. */
+  verified: boolean;
+  /** Verified contract name, when one is known. Never invented. */
+  name?: string;
+  /** Token metadata, when the address is a token. Never invented. */
+  token?: TokenInfo;
   calls: number;
   txs: number;
   /**

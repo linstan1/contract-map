@@ -154,13 +154,19 @@ export class LabelBook {
     return pickLabel(address, this.entries.get(address.toLowerCase()));
   }
 
-  info(address: string): { name?: string; token?: TokenInfo; isContract: boolean; verified: boolean } {
+  /**
+   * What is known about one address. `known` separates "the explorer said
+   * this is an account" from "nothing answered", so a caller never reports
+   * silence as a fact.
+   */
+  info(address: string): { name?: string; token?: TokenInfo; isContract: boolean; verified: boolean; known: boolean } {
     const entry = this.entries.get(address.toLowerCase());
     return {
       name: entry?.name,
       token: entry?.token,
       isContract: entry?.isContract ?? false,
       verified: entry?.verified ?? false,
+      known: entry !== undefined,
     };
   }
 }

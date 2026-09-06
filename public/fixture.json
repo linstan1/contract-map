@@ -1437,6 +1437,13 @@
         {
           "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
           "label": "USDC",
+          "kind": "contract",
+          "verified": true,
+          "token": {
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "decimals": 6
+          },
           "calls": 280,
           "txs": 273,
           "functions": [
@@ -1486,6 +1493,9 @@
         {
           "address": "0x3333333333333333333333333333333333cccc",
           "label": "MoneyMarket",
+          "kind": "contract",
+          "verified": true,
+          "name": "MoneyMarket",
           "calls": 80,
           "txs": 80,
           "functions": [
@@ -1541,6 +1551,9 @@
         {
           "address": "0x9991bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "label": "RewardsDistributor",
+          "kind": "contract",
+          "verified": true,
+          "name": "RewardsDistributor",
           "calls": 233,
           "txs": 233,
           "functions": [
@@ -1575,6 +1588,9 @@
         {
           "address": "0x9993dddddddddddddddddddddddddddddddddd",
           "label": "FeeSplitter",
+          "kind": "contract",
+          "verified": true,
+          "name": "FeeSplitter",
           "calls": 12,
           "txs": 10,
           "functions": [
@@ -1606,6 +1622,9 @@
         {
           "address": "0x9990aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "label": "PriceOracle",
+          "kind": "contract",
+          "verified": true,
+          "name": "PriceOracle",
           "calls": 40,
           "txs": 40,
           "functions": [
@@ -1646,6 +1665,13 @@
         {
           "address": "0x6b175474e89094c44da98b954eedeac495271d0",
           "label": "DAI",
+          "kind": "contract",
+          "verified": true,
+          "token": {
+            "name": "Dai Stablecoin",
+            "symbol": "DAI",
+            "decimals": 18
+          },
           "calls": 1,
           "txs": 1,
           "functions": [
@@ -1672,6 +1698,13 @@
         {
           "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
           "label": "WETH",
+          "kind": "contract",
+          "verified": true,
+          "token": {
+            "name": "Wrapped Ether",
+            "symbol": "WETH",
+            "decimals": 18
+          },
           "calls": 1,
           "txs": 1,
           "functions": [
@@ -1698,6 +1731,13 @@
         {
           "address": "0xdac17f958d2ee523a2206206994597c13d831ec",
           "label": "USDT",
+          "kind": "contract",
+          "verified": true,
+          "token": {
+            "name": "Tether USD",
+            "symbol": "USDT",
+            "decimals": 6
+          },
           "calls": 0,
           "txs": 0,
           "functions": [
@@ -1719,6 +1759,9 @@
         {
           "address": "0x999b00000000000000000000000000000000ff",
           "label": "GuardianModule",
+          "kind": "contract",
+          "verified": true,
+          "name": "GuardianModule",
           "calls": 0,
           "txs": 0,
           "functions": [
@@ -1740,6 +1783,9 @@
         {
           "address": "0x999c00000000000000000000000000000000ab",
           "label": "SwapRouter",
+          "kind": "contract",
+          "verified": true,
+          "name": "SwapRouter",
           "calls": 0,
           "txs": 0,
           "functions": [
@@ -2138,6 +2184,9 @@
         {
           "address": "0x5555555555555555555555555555555555eeee",
           "label": "ZapRouter",
+          "kind": "contract",
+          "verified": true,
+          "name": "ZapRouter",
           "calls": 288,
           "txs": 240,
           "functions": [
@@ -2172,6 +2221,8 @@
         {
           "address": "0x6666666666666666666666666666666666ffff",
           "label": "0x6666…ffff",
+          "kind": "contract",
+          "verified": false,
           "calls": 5,
           "txs": 5,
           "functions": [
@@ -2196,6 +2247,9 @@
         {
           "address": "0x9994eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
           "label": "Compounder",
+          "kind": "contract",
+          "verified": true,
+          "name": "Compounder",
           "calls": 60,
           "txs": 60,
           "functions": [
@@ -2226,6 +2280,9 @@
         {
           "address": "0x999800000000000000000000000000000000cc",
           "label": "PortfolioManager",
+          "kind": "contract",
+          "verified": true,
+          "name": "PortfolioManager",
           "calls": 36,
           "txs": 32,
           "functions": [
@@ -2257,6 +2314,9 @@
         {
           "address": "0x999900000000000000000000000000000000dd",
           "label": "SavingsRouter",
+          "kind": "contract",
+          "verified": true,
+          "name": "SavingsRouter",
           "calls": 18,
           "txs": 15,
           "functions": [
@@ -2283,6 +2343,9 @@
         {
           "address": "0x7777777777777777777777777777777777aaaa",
           "label": "YieldAggregator",
+          "kind": "contract",
+          "verified": true,
+          "name": "YieldAggregator",
           "calls": 52,
           "txs": 40,
           "functions": [
@@ -2313,6 +2376,9 @@
         {
           "address": "0x9995ffffffffffffffffffffffffffffffffff",
           "label": "MigratorV1",
+          "kind": "contract",
+          "verified": true,
+          "name": "MigratorV1",
           "calls": 18,
           "txs": 18,
           "functions": [
@@ -2349,6 +2415,9 @@
         {
           "address": "0x999600000000000000000000000000000000aa",
           "label": "MigratorV2",
+          "kind": "contract",
+          "verified": true,
+          "name": "MigratorV2",
           "calls": 6,
           "txs": 6,
           "functions": [
@@ -2375,6 +2444,9 @@
         {
           "address": "0x8888888888888888888888888888888888aaaa",
           "label": "GovernanceTimelock",
+          "kind": "contract",
+          "verified": true,
+          "name": "GovernanceTimelock",
           "calls": 4,
           "txs": 4,
           "functions": [
@@ -2406,6 +2478,9 @@
         {
           "address": "0x999a00000000000000000000000000000000ee",
           "label": "DustSweeper",
+          "kind": "contract",
+          "verified": true,
+          "name": "DustSweeper",
           "calls": 2,
           "txs": 2,
           "functions": [
@@ -2432,6 +2507,9 @@
         {
           "address": "0x999700000000000000000000000000000000bb",
           "label": "ArbBot",
+          "kind": "contract",
+          "verified": true,
+          "name": "ArbBot",
           "calls": 273,
           "txs": 178,
           "functions": [
@@ -2471,6 +2549,8 @@
         {
           "address": "0x9999999999999999999999999999999999e0a1",
           "label": "EOA 0x9999…e0a1 (aggregated)",
+          "kind": "eoa",
+          "verified": false,
           "calls": 296,
           "txs": 296,
           "functions": [
@@ -2503,6 +2583,8 @@
         {
           "address": "0x9999999999999999999999999999999999e0a2",
           "label": "EOA 0x9999…e0a2 (aggregated)",
+          "kind": "eoa",
+          "verified": false,
           "calls": 44,
           "txs": 44,
           "functions": [

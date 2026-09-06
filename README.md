@@ -19,6 +19,7 @@ Contract Map returns:
 * internal functions reached from each entry point
 * contracts and functions called by the target
 * contracts and functions that call into the target
+* one contract-level map of the neighbours on both sides
 * observed call counts for the scanned execution sample
 
 The tool maps execution. It is not a block explorer or security scanner.
@@ -136,6 +137,42 @@ This exposes both the source-level execution path and the external calls that we
 </table>
 
 The graph defaults to function-level edges. Contract-level aggregation is available when a higher-level view is more useful.
+
+### Contract map
+
+The function graph answers a function question. The contract map answers the
+question above it: which contracts use this contract, and which contracts does
+it use.
+
+<img src="docs/screenshots/13-contract-map.webp" alt="The analysed contract in the middle, the ten busiest calling contracts on the left, and the ten busiest called contracts on the right">
+
+The analysed contract sits in the middle. The left column holds the ten
+busiest contracts that called it. The right column holds the ten busiest
+contracts it called. One node is one address, so every edge rolls up all the
+function-level calls between the two contracts, and the number on the edge is
+the observed call count.
+
+Each card carries a short description, and every part of it is a recovered
+fact:
+
+```text
+USDC          0xa0b8…eb48 · 280 calls / 273 txs
+              USD Coin (USDC) token, this contract calls
+              transferFrom() and transfer(), from deposit()
+              and withdraw().
+```
+
+The first phrase is the identity: a token name and symbol, a verified contract
+name, or the plain statement that the address is an unverified contract. The
+rest is the observed role: the functions the traces show, on both sides of the
+edge. An address that no source described says so, and it is never called an
+account on silence alone.
+
+The map shows contracts only. An externally owned caller holds no code and no
+function, so it is left out, and the note under the map states how many were
+left out. A card with a dashed border is possible from code and was not
+observed in the traced window. A click on a card opens the roll-up tab for
+that direction, where every row carries its proof transactions.
 
 ## Evidence model
 

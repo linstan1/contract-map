@@ -89,7 +89,7 @@ for (const edge of result.runtime.outbound.edges.slice(0, 15)) {
 line("");
 line("OUTBOUND CONTRACTS");
 for (const contract of result.runtime.outbound.contracts.slice(0, 8)) {
-  line(`  ${contract.label} (${contract.address}) ${contract.calls} calls`);
+  line(`  ${contract.label} (${contract.address}) ${contract.kind} ${contract.calls} calls`);
   for (const fn of contract.functions.slice(0, 5)) line(`      ${fn.signature ?? fn.selector}  ${fn.calls}`);
   line(`      from target: ${contract.targetFunctions.map((f) => f.signature ?? f.selector ?? "unattributed").slice(0, 5).join(", ")}`);
 }
@@ -102,7 +102,7 @@ for (const edge of result.runtime.inbound.edges.slice(0, 15)) {
 line("");
 line("INBOUND CONTRACTS");
 for (const contract of result.runtime.inbound.contracts.slice(0, 8)) {
-  line(`  ${contract.label} (${contract.address}) ${contract.calls} calls`);
+  line(`  ${contract.label} (${contract.address}) ${contract.kind} ${contract.calls} calls`);
   for (const fn of contract.targetFunctions.slice(0, 5)) line(`      ${fn.signature ?? fn.selector}  ${fn.calls}`);
 }
 line("");

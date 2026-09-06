@@ -10,7 +10,7 @@
  */
 
 import { selectorOfInput } from "../rpc";
-import type { CallFrame, CallType, ContractAggregate, FunctionCount, InboundEdge, OutboundEdge, Selector, TraceTx, TxRef } from "../types";
+import type { CallFrame, CallType, ContractAggregate, CounterpartyKind, FunctionCount, InboundEdge, OutboundEdge, Selector, TokenInfo, TraceTx, TxRef } from "../types";
 
 /** The subset of `SignatureRegistry` this module needs. A real registry satisfies it structurally. */
 export interface SelectorResolver {
@@ -22,7 +22,7 @@ export interface SelectorResolver {
 export interface LabelSource {
   load(addresses: string[]): Promise<void>;
   label(address: string): string;
-  info(address: string): { name?: string; isContract: boolean; verified: boolean };
+  info(address: string): { name?: string; token?: TokenInfo; isContract: boolean; verified: boolean; known: boolean };
 }
 
 export interface AggregateResult {
@@ -262,17 +262,54 @@ function finishInboundEdges(drafts: Map<string, InboundDraft>, registry: Selecto
     .sort((a, b) => b.calls - a.calls);
 }
 
-function finishContracts(drafts: Map<string, ContractDraft>, registry: SelectorResolver, labels: LabelSource): ContractAggregate[] {
+/**
+ * Addresses that ran code inside the traced sample.
+ *
+ * Code at the `from` address emitted every frame below the root, so that
+ * address holds code on trace evidence alone. This evidence is stronger
+ * than an explorer answer, and it still works when the explorer is silent.
+ */
+function collectCodeBearing(txs: TraceTx[]): Set<string> {
+  const proven = new Set<string>();
+  const visit = (frame: CallFrame, isRoot: boolean): void => {
+    if (!isRoot) proven.add(frame.from.toLowerCase());
+    for (const child of frame.children) visit(child, false);
+  };
+  for (const tx of txs) visit(tx.root, true);
+  return proven;
+}
+
+/** Contract, account, or neither, from trace evidence first and the label book second. */
+function kindOf(address: string, labels: LabelSource, codeBearing: Set<string>): CounterpartyKind {
+  if (codeBearing.has(address)) return "contract";
+  const info = labels.info(address);
+  if (info.isContract) return "contract";
+  return info.known ? "eoa" : "unknown";
+}
+
+function finishContracts(
+  drafts: Map<string, ContractDraft>,
+  registry: SelectorResolver,
+  labels: LabelSource,
+  codeBearing: Set<string>,
+): ContractAggregate[] {
   return [...drafts.values()]
-    .map((d) => ({
-      address: d.address,
-      label: labels.label(d.address),
-      calls: d.calls,
-      txs: d.txs.size,
-      functions: collectFunctionCounts(d.ownFunctions, registry),
-      targetFunctions: collectFunctionCounts(d.targetFunctions, registry),
-      examples: finishExamples(d.examples),
-    }))
+    .map((d) => {
+      const info = labels.info(d.address);
+      return {
+        address: d.address,
+        label: labels.label(d.address),
+        kind: kindOf(d.address, labels, codeBearing),
+        verified: info.verified,
+        name: info.name,
+        token: info.token,
+        calls: d.calls,
+        txs: d.txs.size,
+        functions: collectFunctionCounts(d.ownFunctions, registry),
+        targetFunctions: collectFunctionCounts(d.targetFunctions, registry),
+        examples: finishExamples(d.examples),
+      };
+    })
     .sort((a, b) => b.calls - a.calls);
 }
 
@@ -385,8 +422,9 @@ export async function aggregateTraces(
   const outbound = finishOutboundEdges(outboundEdges, registry, labels);
   const inbound = finishInboundEdges(inboundEdges, registry, labels);
   const delegatecallEdges = finishOutboundEdges(delegatecalls, registry, labels);
-  const outboundContractList = finishContracts(outboundContracts, registry, labels);
-  const inboundContractList = finishContracts(inboundContracts, registry, labels);
+  const codeBearing = collectCodeBearing(txs);
+  const outboundContractList = finishContracts(outboundContracts, registry, labels, codeBearing);
+  const inboundContractList = finishContracts(inboundContracts, registry, labels, codeBearing);
   const unresolvedSelectors = [...selectors].filter((s) => registry.lookup(s).signature === undefined);
 
   return {

@@ -340,6 +340,8 @@
         {
           "address": "0x8888888888888888888888888888888888beef",
           "label": "0x8888…beef",
+          "kind": "contract",
+          "verified": false,
           "calls": 4,
           "txs": 4,
           "functions": [],

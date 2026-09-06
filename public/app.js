@@ -3,6 +3,7 @@
 // State machine: entry -> loading -> app (or error, back to entry).
 // `result` holds the current `AnalysisResult` once analysis finishes.
 
+import { renderContractMap } from "./contractmap.js";
 import { renderGraph } from "./graph.js";
 
 /* ------------------------------------------------------------- helpers */
@@ -509,13 +510,14 @@ function switchView(view) {
   for (const tab of document.querySelectorAll(".tab[data-view]")) {
     tab.classList.toggle("active", tab.dataset.view === view);
   }
-  for (const id of ["overview", "functions", "function-detail", "calls-from", "calls-into", "graph"]) {
+  for (const id of ["overview", "functions", "function-detail", "calls-from", "calls-into", "contract-map", "graph"]) {
     $("view-" + id).hidden = id !== view;
   }
   if (view === "overview") renderOverview();
   if (view === "functions") renderFunctionsTable();
   if (view === "calls-from") renderCallsFrom();
   if (view === "calls-into") renderCallsInto();
+  if (view === "contract-map") renderContractMapView();
   if (view === "graph") renderGraphView();
 }
 
@@ -525,7 +527,7 @@ function openFunctionDetail(selector) {
   for (const tab of document.querySelectorAll(".tab[data-view]")) {
     tab.classList.toggle("active", tab.dataset.view === "functions");
   }
-  for (const id of ["overview", "functions", "function-detail", "calls-from", "calls-into", "graph"]) {
+  for (const id of ["overview", "functions", "function-detail", "calls-from", "calls-into", "contract-map", "graph"]) {
     $("view-" + id).hidden = id !== "function-detail";
   }
   renderFunctionDetail(selector);
@@ -1221,6 +1223,59 @@ function renderCallsInto() {
     for (const agg of r.runtime.inbound.contracts.slice().sort((a, b) => b.calls - a.calls)) grid.appendChild(contractRollupCard(agg, "in"));
     host.appendChild(grid);
   }
+}
+
+/* ---------------------------------------------------------- contract map */
+//
+// One contract per node, the analysed address in the middle. The view answers
+// "who uses this contract, and what does it use" without a single function
+// row. Every count and every description below comes from the same roll-ups
+// the two call tabs show, so the numbers always agree.
+
+function mapNote(text) {
+  return el("p", { class: "empty-note", style: "margin:0;", text });
+}
+
+function renderContractMapView() {
+  const r = state.result;
+  const host = $("view-contract-map");
+  host.innerHTML = "";
+
+  host.appendChild(el("h2", { class: "section-title", text: "Contract map" }));
+  host.appendChild(el("p", { class: "summary-text", text: "Contracts only. Each edge rolls up every function-level call between the two addresses in the traced window. Click a card to open the roll-up that carries the proof transactions." }));
+
+  const legend = el("div", { class: "graph-legend" }, [
+    el("span", {}, [el("span", { class: "legend-swatch", style: "background:var(--observed);" }), "Observed calls"]),
+    el("span", {}, [el("span", { class: "legend-swatch", style: "background:var(--text-3);" }), "Possible from code, not observed"]),
+  ]);
+  host.appendChild(legend);
+
+  if (!r.runtime.inbound.contracts.length && !r.runtime.outbound.contracts.length) {
+    host.appendChild(mapNote(r.runtime.available
+      ? "No counterparty contract was observed in the traced window."
+      : "No runtime trace data is available for this contract, so the map has no counterparties."));
+    return;
+  }
+
+  const container = el("div", { id: "contract-map-container" });
+  host.appendChild(container);
+
+  const { notes } = renderContractMap(container, r, {
+    onSelectSide: (side) => switchView(side === "in" ? "calls-into" : "calls-from"),
+  });
+
+  const footer = el("div", { class: "cmap-footer" });
+  const sides = [
+    { note: notes.inbound, word: "calling contracts", accounts: "caller" },
+    { note: notes.outbound, word: "called contracts", accounts: "destination" },
+  ];
+  for (const s of sides) {
+    if (s.note.hidden > 0) footer.appendChild(mapNote(`${s.note.total} ${s.word} in total, ${s.note.hidden} not drawn.`));
+    if (s.note.accounts > 0) {
+      footer.appendChild(mapNote(`${s.note.accounts} externally owned ${s.accounts}${s.note.accounts === 1 ? "" : "s"} left out: the map shows contracts only.`));
+    }
+  }
+  if (footer.childElementCount) host.appendChild(footer);
 }
 
 /* ---------------------------------------------------------------- graph */

@@ -949,6 +949,82 @@ tbody tr.fn-row:hover { background: var(--bg-2); }
   align-items: center;
 }
 
+/* -------------------------------------------------------- contract map */
+
+#contract-map-container {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  background: var(--bg-1);
+  overflow: auto;
+  max-width: 100%;
+}
+
+#contract-map-container svg { display: block; }
+
+.cmap-card rect {
+  fill: var(--bg-3);
+  stroke: var(--border-strong);
+}
+
+.cmap-card:hover rect { stroke: var(--accent); }
+
+.cmap-card.unobserved rect {
+  fill: var(--bg-2);
+  stroke-dasharray: 4 3;
+}
+
+.cmap-hub rect {
+  fill: var(--bg-2);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.cmap-card-title {
+  fill: var(--text-0);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cmap-card-meta {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.cmap-card-desc {
+  fill: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.cmap-col-header {
+  fill: var(--text-2);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cmap-edge { fill: none; stroke: var(--text-3); }
+.cmap-edge.observed { stroke: var(--observed); }
+.cmap-edge.possible { stroke-dasharray: 4 3; }
+
+.cmap-edge-count {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.cmap-arrow { fill: var(--observed); }
+.cmap-arrow.dim { fill: var(--text-3); }
+
+.cmap-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 /* ------------------------------------------------------------- review */
 
 .review-toggle {
